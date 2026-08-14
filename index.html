@@ -3,26 +3,283 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IV Drug incompactibility | Health Dashboard</title>
-<link rel="stylesheet" href="style.css" />
+<title>IV Drug Incompatibility | Clinical Pharmacy Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f1a;
+    --bg-panel:#101827;
+    --bg-card:#131c2e;
+    --line:#22304a;
+    --teal:#2dd4bf;
+    --amber:#f2a541;
+    --text:#e8edf6;
+    --muted:#8fa0bc;
+    --mono:'JetBrains Mono', monospace;
+    --display:'Space Grotesk', sans-serif;
+    --body:'Inter', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(circle at 80% -10%, rgba(45,212,191,0.10), transparent 45%),
+      radial-gradient(circle at 10% 20%, rgba(242,165,65,0.06), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* NAVBAR */
+  .navbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 48px;
+    border-bottom:1px solid var(--line);
+    background:rgba(10,15,26,0.7);
+    backdrop-filter:blur(10px);
+    position:sticky;top:0;z-index:50;
+  }
+  .logo{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:1.1rem;
+    letter-spacing:0.01em;
+    display:flex;align-items:center;gap:10px;
+  }
+  .logo .rx{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:30px;height:30px;border-radius:8px;
+    background:linear-gradient(145deg, var(--teal), #1a8f80);
+    color:#04140f;font-weight:700;font-size:0.9rem;font-family:var(--display);
+  }
+  .logo span{color:var(--teal);}
+  .nav-links{display:flex;gap:32px;list-style:none;}
+  .nav-links li{
+    font-size:0.85rem;color:var(--muted);cursor:pointer;
+    text-transform:uppercase;letter-spacing:0.08em;
+    font-family:var(--mono);
+    transition:color .2s ease;
+  }
+  .nav-links li:hover{color:var(--teal);}
+  .profile{
+    width:38px;height:38px;border-radius:50%;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    background:var(--bg-panel);
+  }
+
+  /* HERO */
+  .hero{
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    align-items:center;
+    gap:24px;
+    padding:72px 48px 40px;
+    max-width:1320px;
+    margin:0 auto;
+    min-height:78vh;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--teal);
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:'';width:7px;height:7px;border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 4px rgba(45,212,191,0.15);
+  }
+  .hero-text h1{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:clamp(2.2rem, 4vw, 3.4rem);
+    line-height:1.12;
+    letter-spacing:-0.01em;
+    max-width:12ch;
+  }
+  .hero-text h1 span{
+    color:var(--amber);
+    font-style:italic;
+    font-weight:500;
+  }
+  .hero-text p{
+    margin-top:20px;
+    color:var(--muted);
+    font-size:1.02rem;
+    max-width:42ch;
+    line-height:1.6;
+  }
+  .hero-meta{
+    display:flex;gap:28px;
+    margin-top:30px;
+    font-family:var(--mono);
+    font-size:0.78rem;
+    color:var(--muted);
+  }
+  .hero-meta div b{
+    display:block;color:var(--text);font-size:1.05rem;font-family:var(--display);
+  }
+  .cta-btn{
+    margin-top:34px;
+    background:var(--teal);
+    color:#04140f;
+    border:none;
+    padding:14px 30px;
+    border-radius:8px;
+    font-family:var(--body);
+    font-weight:600;
+    font-size:0.92rem;
+    cursor:pointer;
+    letter-spacing:0.01em;
+    transition:transform .18s ease, box-shadow .18s ease;
+    box-shadow:0 0 0 rgba(45,212,191,0);
+  }
+  .cta-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 30px -8px rgba(45,212,191,0.5);
+  }
+
+  /* 3D CANVAS PANEL */
+  .capsule-panel{
+    position:relative;
+    height:520px;
+    border-radius:20px;
+    background:linear-gradient(180deg, rgba(19,28,46,0.6), rgba(10,15,26,0.2));
+    border:1px solid var(--line);
+    overflow:hidden;
+  }
+  .capsule-panel::before{
+    content:'';
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(143,160,188,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(143,160,188,0.06) 1px, transparent 1px);
+    background-size:32px 32px;
+    mask-image:radial-gradient(circle at center, black 40%, transparent 78%);
+    pointer-events:none;
+  }
+  #capsule-canvas{
+    position:absolute;inset:0;
+  }
+  #capsule-canvas canvas{display:block;}
+  .scan-label{
+    position:absolute;top:18px;left:20px;
+    font-family:var(--mono);
+    font-size:0.68rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .scan-label b{color:var(--amber);display:block;font-size:0.72rem;margin-top:2px;}
+  .dose-tag{
+    position:absolute;bottom:18px;right:20px;
+    font-family:var(--mono);
+    font-size:0.72rem;
+    color:var(--muted);
+    text-align:right;
+    line-height:1.5;
+  }
+  .dose-tag b{color:var(--teal);}
+
+  /* CARDS */
+  .cards{
+    max-width:1320px;
+    margin:20px auto 90px;
+    padding:0 48px;
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:18px;
+  }
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:24px 22px;
+    transition:transform .2s ease, border-color .2s ease;
+  }
+  .card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(45,212,191,0.4);
+  }
+  .card-icon{
+    width:40px;height:40px;
+    border-radius:10px;
+    background:rgba(45,212,191,0.1);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;
+    margin-bottom:16px;
+  }
+  .card h3{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:1rem;
+    margin-bottom:6px;
+  }
+  .card p{
+    color:var(--muted);
+    font-size:0.86rem;
+    font-family:var(--mono);
+  }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:26px 48px;
+    text-align:center;
+    color:var(--muted);
+    font-size:0.8rem;
+    font-family:var(--mono);
+  }
+
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr;padding:48px 24px;}
+    .capsule-panel{height:360px;order:-1;}
+    .navbar{padding:16px 24px;}
+    .cards{grid-template-columns:1fr 1fr;padding:0 24px;}
+  }
+  @media (max-width:520px){
+    .cards{grid-template-columns:1fr;}
+    .nav-links{display:none;}
+  }
+</style>
 </head>
 <body>
-
   <nav class="navbar">
-    <div class="logo">💊 Clinical Pharmacy -  <span>SRH</span></div>
+    <div class="logo"><span class="rx">Rx</span>Clinical Pharmacy — <span>SRH</span></div>
     <ul class="nav-links">
-      <li>Drug profile </li>
+      <li>Drug Profile</li>
+      <li>Interactions</li>
+      <li>Reports</li>
     </ul>
     <div class="profile">👤</div>
   </nav>
 
   <main class="hero">
     <div class="hero-text">
-      <h1>Know about your Medicine, <span>Visualized</span></h1>
-      <p>Track medications, and vitals in one intelligent dashboard.</p>
+      <div class="eyebrow">Live molecular render</div>
+      <h1>Know your medicine, <span>visualized</span></h1>
+      <p>Track medications, vitals, and IV compatibility in one intelligent dashboard — every dose rendered before it's given.</p>
+      <div class="hero-meta">
+        <div><b>3</b>Due today</div>
+        <div><b>72 bpm</b>Heart rate</div>
+        <div><b>89/100</b>Health score</div>
+      </div>
       <button class="cta-btn">Get Started</button>
     </div>
-    <div id="capsule-canvas"></div>
+
+    <div class="capsule-panel">
+      <div class="scan-label">Sample<b>Capsule · 500mg</b></div>
+      <div id="capsule-canvas"></div>
+      <div class="dose-tag">rotate · drag<br><b>scroll to zoom</b></div>
+    </div>
   </main>
 
   <section class="cards">
@@ -49,10 +306,217 @@
   </section>
 
   <footer>
-    <p>&copy; 2026 MediCare3D. Built for better health tracking.</p>
+    <p>&copy; 2026 SRH Clinical Pharmacy. Built for better health tracking.</p>
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="script.js"></script>
+  <script>
+  (function(){
+    const container = document.getElementById('capsule-canvas');
+    const panel = document.querySelector('.capsule-panel');
+
+    // ---- Scene setup ----
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, panel.clientWidth / panel.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 7);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(panel.clientWidth, panel.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    // ---- Lighting ----
+    scene.add(new THREE.AmbientLight(0x445566, 1.1));
+
+    const keyLight = new THREE.PointLight(0x2dd4bf, 2.2, 20);
+    keyLight.position.set(4, 3, 5);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.PointLight(0xf2a541, 1.6, 20);
+    rimLight.position.set(-4, -2, -3);
+    scene.add(rimLight);
+
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight.position.set(0, 5, 2);
+    scene.add(fillLight);
+
+    // ---- Build the capsule (two hemisphere halves + cylinder body) ----
+    const capsuleGroup = new THREE.Group();
+    const radius = 1;
+    const bodyLength = 1.6;
+
+    const tealMat = new THREE.MeshPhysicalMaterial({
+      color: 0x2dd4bf,
+      metalness: 0.15,
+      roughness: 0.25,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.2,
+      transmission: 0.15,
+      thickness: 0.6,
+      reflectivity: 0.5
+    });
+
+    const amberMat = new THREE.MeshPhysicalMaterial({
+      color: 0xf2a541,
+      metalness: 0.15,
+      roughness: 0.25,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.2,
+      transmission: 0.15,
+      thickness: 0.6,
+      reflectivity: 0.5
+    });
+
+    // Teal half: dome + half cylinder
+    const domeGeoTeal = new THREE.SphereGeometry(radius, 48, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+    const domeTeal = new THREE.Mesh(domeGeoTeal, tealMat);
+    domeTeal.rotation.x = Math.PI; // point outward on +x side
+    domeTeal.position.x = bodyLength / 2;
+    capsuleGroup.add(domeTeal);
+
+    const halfCylGeoTeal = new THREE.CylinderGeometry(radius, radius, bodyLength / 2, 48, 1, true);
+    const halfCylTeal = new THREE.Mesh(halfCylGeoTeal, tealMat);
+    halfCylTeal.rotation.z = Math.PI / 2;
+    halfCylTeal.position.x = bodyLength / 4;
+    capsuleGroup.add(halfCylTeal);
+
+    // Amber half: dome + half cylinder (mirrored)
+    const domeGeoAmber = new THREE.SphereGeometry(radius, 48, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+    const domeAmber = new THREE.Mesh(domeGeoAmber, amberMat);
+    domeAmber.position.x = -bodyLength / 2;
+    domeAmber.rotation.x = 0;
+    domeAmber.rotation.z = Math.PI;
+    capsuleGroup.add(domeAmber);
+
+    const halfCylGeoAmber = new THREE.CylinderGeometry(radius, radius, bodyLength / 2, 48, 1, true);
+    const halfCylAmber = new THREE.Mesh(halfCylGeoAmber, amberMat);
+    halfCylAmber.rotation.z = Math.PI / 2;
+    halfCylAmber.position.x = -bodyLength / 4;
+    capsuleGroup.add(halfCylAmber);
+
+    // subtle seam ring where the two halves meet
+    const seamGeo = new THREE.TorusGeometry(radius * 1.001, 0.012, 12, 64);
+    const seamMat = new THREE.MeshBasicMaterial({ color: 0x0a0f1a });
+    const seam = new THREE.Mesh(seamGeo, seamMat);
+    seam.rotation.y = Math.PI / 2;
+    capsuleGroup.add(seam);
+
+    capsuleGroup.scale.setScalar(1.15);
+    scene.add(capsuleGroup);
+
+    // ---- Orbiting "molecule" particles around the capsule ----
+    const particleGroup = new THREE.Group();
+    const particleCount = 14;
+    const particleGeo = new THREE.SphereGeometry(0.045, 12, 12);
+    const particles = [];
+
+    for (let i = 0; i < particleCount; i++) {
+      const mat = new THREE.MeshBasicMaterial({
+        color: i % 2 === 0 ? 0x2dd4bf : 0xf2a541,
+        transparent: true,
+        opacity: 0.85
+      });
+      const p = new THREE.Mesh(particleGeo, mat);
+      const angle = (i / particleCount) * Math.PI * 2;
+      const radiusVariance = 2.1 + Math.random() * 0.6;
+      const tiltVariance = (Math.random() - 0.5) * 1.4;
+      p.userData = { angle, radiusVariance, tiltVariance, speed: 0.15 + Math.random() * 0.15 };
+      particleGroup.add(p);
+      particles.push(p);
+    }
+    scene.add(particleGroup);
+
+    // faint scan ring
+    const ringGeo = new THREE.TorusGeometry(2.35, 0.006, 8, 100);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.25 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2.3;
+    scene.add(ring);
+
+    // ---- Interaction: drag to rotate, scroll to zoom ----
+    let isDragging = false;
+    let prevX = 0, prevY = 0;
+    let targetRotX = 0.15, targetRotY = 0.4;
+    let currentRotX = targetRotX, currentRotY = targetRotY;
+    let autoRotate = true;
+
+    function pointerDown(x, y) {
+      isDragging = true;
+      autoRotate = false;
+      prevX = x; prevY = y;
+    }
+    function pointerMove(x, y) {
+      if (!isDragging) return;
+      const dx = x - prevX;
+      const dy = y - prevY;
+      targetRotY += dx * 0.006;
+      targetRotX += dy * 0.006;
+      targetRotX = Math.max(-1, Math.min(1, targetRotX));
+      prevX = x; prevY = y;
+    }
+    function pointerUp() {
+      isDragging = false;
+      setTimeout(() => { if (!isDragging) autoRotate = true; }, 2200);
+    }
+
+    renderer.domElement.addEventListener('mousedown', e => pointerDown(e.clientX, e.clientY));
+    window.addEventListener('mousemove', e => pointerMove(e.clientX, e.clientY));
+    window.addEventListener('mouseup', pointerUp);
+
+    renderer.domElement.addEventListener('touchstart', e => {
+      const t = e.touches[0]; pointerDown(t.clientX, t.clientY);
+    }, { passive: true });
+    renderer.domElement.addEventListener('touchmove', e => {
+      const t = e.touches[0]; pointerMove(t.clientX, t.clientY);
+    }, { passive: true });
+    renderer.domElement.addEventListener('touchend', pointerUp);
+
+    renderer.domElement.addEventListener('wheel', e => {
+      e.preventDefault();
+      camera.position.z += e.deltaY * 0.003;
+      camera.position.z = Math.max(4.2, Math.min(10, camera.position.z));
+    }, { passive: false });
+
+    // ---- Resize handling ----
+    function onResize() {
+      const w = panel.clientWidth, h = panel.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+    window.addEventListener('resize', onResize);
+
+    // ---- Animation loop ----
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      if (autoRotate) {
+        targetRotY += 0.0035;
+      }
+      currentRotX += (targetRotX - currentRotX) * 0.08;
+      currentRotY += (targetRotY - currentRotY) * 0.08;
+
+      capsuleGroup.rotation.x = currentRotX;
+      capsuleGroup.rotation.y = currentRotY;
+      capsuleGroup.position.y = Math.sin(t * 0.9) * 0.12;
+
+      particles.forEach(p => {
+        const d = p.userData;
+        const a = d.angle + t * d.speed;
+        p.position.x = Math.cos(a) * d.radiusVariance;
+        p.position.z = Math.sin(a) * d.radiusVariance;
+        p.position.y = Math.sin(a * 1.7) * d.tiltVariance + capsuleGroup.position.y;
+      });
+
+      ring.rotation.z = t * 0.12;
+      keyLight.position.x = Math.sin(t * 0.4) * 4 + 1;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+  })();
+  </script>
 </body>
 </html>
