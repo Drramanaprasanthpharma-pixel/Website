@@ -666,20 +666,20 @@ async function checkCompatibility() {
 
   // Check A → B
   let { data, error } = await supabaseClient
-    .from("drug_Incompatibility")
+    .from("drug_Incompactibility")
     .select("*")
-    .eq("drug_A", drugA)
-    .eq("drug_B", drugB)
+    .ilike("drug_A", drugA)
+    .ilike("drug_B", drugB)
     .limit(1);
 
   // If not found, check B → A
   if (!error && (!data || data.length === 0)) {
 
     const reverse = await supabaseClient
-      .from("drug_Incompatibility")
+      .from("drug_Incompactibility")
       .select("*")
-      .eq("drug_A", drugB)
-      .eq("drug_B", drugA)
+      .ilike("drug_A", drugB)
+      .ilike("drug_B", drugA)
       .limit(1);
 
     data = reverse.data;
