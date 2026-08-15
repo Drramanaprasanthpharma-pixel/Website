@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IV Drug Incompatibility | Clinical Pharmacy Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef4fa;
+    --bg-soft:#f6faff;
+    --panel:#ffffff;
+    --card:#ffffff;
+    --line:#dde8f2;
+    --line-strong:#c7d8ea;
+    --teal:#0d9488;
+    --teal-light:#2dd4bf;
+    --blue:#2563eb;
+    --amber:#e08a1f;
+    --red:#e0563f;
+    --green:#1a9e6b;
+    --text:#0b1a2b;
+    --muted:#5c6c82;
+    --muted-soft:#8698ae;
+    --mono:'JetBrains Mono', monospace;
+    --display:'Space Grotesk', sans-serif;
+    --body:'Inter', sans-serif;
+    --shadow-sm:0 2px 10px rgba(15,35,60,0.05);
+    --shadow-md:0 14px 40px -14px rgba(15,35,60,0.18);
+    --shadow-lg:0 30px 70px -20px rgba(15,35,60,0.22);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(circle at 85% -8%, rgba(45,212,191,0.16), transparent 42%),
+      radial-gradient(circle at -5% 18%, rgba(37,99,235,0.09), transparent 40%),
+      radial-gradient(circle at 60% 90%, rgba(224,138,31,0.06), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
+
+  /* ================= NAVBAR ================= */
+  .navbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 48px;
+    border-bottom:1px solid var(--line);
+    background:rgba(246,250,255,0.75);
+    backdrop-filter:blur(14px);
+    position:sticky;top:0;z-index:50;
+  }
+  .logo{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:1.08rem;
+    letter-spacing:0.01em;
+    display:flex;align-items:center;gap:10px;
+    color:var(--text);
+  }
+  .logo .rx{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:32px;height:32px;border-radius:9px;
+    background:linear-gradient(145deg, var(--teal-light), var(--teal));
+    color:#03211c;font-weight:700;font-size:0.92rem;font-family:var(--display);
+    box-shadow:0 6px 16px -6px rgba(13,148,136,0.6);
+  }
+  .logo span{color:var(--teal);}
+  .nav-links{display:flex;gap:30px;list-style:none;}
+  .nav-links li{
+    font-size:0.78rem;color:var(--muted);cursor:pointer;
+    text-transform:uppercase;letter-spacing:0.08em;
+    font-family:var(--mono);
+    transition:color .2s ease;
+    position:relative;
+  }
+  .nav-links li:hover{color:var(--teal);}
+  .nav-links li::after{
+    content:'';position:absolute;left:0;bottom:-6px;width:0;height:2px;background:var(--teal-light);
+    transition:width .2s ease;
+  }
+  .nav-links li:hover::after{width:100%;}
+  .nav-right{display:flex;align-items:center;gap:16px;}
+  .status-pill{
+    display:flex;align-items:center;gap:7px;
+    font-family:var(--mono);font-size:0.7rem;color:var(--green);
+    background:rgba(26,158,107,0.1);
+    border:1px solid rgba(26,158,107,0.25);
+    padding:6px 12px;border-radius:999px;
+    text-transform:uppercase;letter-spacing:0.06em;
+  }
+  .status-pill::before{
+    content:'';width:6px;height:6px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 0 3px rgba(26,158,107,0.18);
+  }
+  .profile{
+    width:38px;height:38px;border-radius:50%;
+    border:1px solid var(--line-strong);
+    display:flex;align-items:center;justify-content:center;
+    background:var(--panel);
+    box-shadow:var(--shadow-sm);
+  }
+
+  /* ================= SECTION SHELL ================= */
+  .section-shell{
+    max-width:1320px;
+    margin:0 auto;
+    padding:0 48px;
+  }
+  .section-head{
+    text-align:center;
+    max-width:640px;
+    margin:0 auto 44px;
+  }
+  .section-head .eyebrow{justify-content:center;}
+  .section-head h2{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:clamp(1.7rem, 2.6vw, 2.3rem);
+    margin-bottom:14px;
+    color:var(--text);
+  }
+  .section-head p{
+    color:var(--muted);
+    font-size:0.98rem;
+    line-height:1.6;
+  }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--teal);
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:'';width:7px;height:7px;border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 4px rgba(13,148,136,0.15);
+  }
+
+  .cta-btn{
+    background:linear-gradient(135deg, var(--teal-light), var(--teal));
+    color:#03211c;
+    border:none;
+    padding:14px 28px;
+    border-radius:10px;
+    font-family:var(--body);
+    font-weight:600;
+    font-size:0.92rem;
+    cursor:pointer;
+    letter-spacing:0.01em;
+    transition:transform .18s ease, box-shadow .18s ease;
+    box-shadow:0 14px 30px -12px rgba(13,148,136,0.55);
+  }
+  .cta-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 18px 36px -12px rgba(13,148,136,0.65);
+  }
+  .cta-btn.ghost{
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--line-strong);
+    box-shadow:none;
+  }
+  .cta-btn.ghost:hover{
+    border-color:var(--teal);
+    color:var(--teal);
+    box-shadow:0 8px 20px -12px rgba(13,148,136,0.4);
+  }
+
+  /* ================= INTERACTION / CHECKER ================= */
+  .interaction-section {
+    max-width: 1100px;
+    margin: 20px auto 90px;
+    padding: 0 48px;
+  }
+
+  .interaction-container {
+    background: linear-gradient(180deg, #ffffff, #fbfdff);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: var(--shadow-md);
+    position:relative;
+    overflow:hidden;
+  }
+  .interaction-container::before{
+    content:'';
+    position:absolute;top:-60px;right:-60px;
+    width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle, rgba(45,212,191,0.16), transparent 70%);
+    pointer-events:none;
+  }
+
+  .interaction-container h2 {
+    font-family: var(--display);
+    font-weight:600;
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    color:var(--text);
+  }
+
+  .interaction-description {
+    color: var(--muted);
+    margin-bottom: 30px;
+    font-size:0.98rem;
+  }
+
+  .drug-inputs {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 18px;
+    align-items: end;
+  }
+
+  .drug-field label {
+    display: block;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing:0.06em;
+  }
+
+  .drug-field input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    font-family:var(--body);
+    transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  .drug-field input::placeholder{color:var(--muted-soft);}
+
+  .drug-field input:focus {
+    border-color: var(--teal);
+    background:#ffffff;
+    box-shadow:0 0 0 4px rgba(13,148,136,0.12);
+  }
+
+  .plus {
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--amber);
+    padding-bottom: 12px;
+    font-family:var(--display);
+  }
+
+  .checker-actions{
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    margin-top:26px;
+  }
+
+  .quick-pairs{
+    margin-top:28px;
+  }
+  .quick-pairs-label{
+    font-family:var(--mono);
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-soft);
+    margin-bottom:12px;
+  }
+  .pair-chips{
+    display:flex;flex-wrap:wrap;gap:10px;
+  }
+  .pair-chip{
+    font-family:var(--mono);
+    font-size:0.76rem;
+    color:var(--text);
+    background:var(--bg-soft);
+    border:1px solid var(--line-strong);
+    padding:8px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .18s ease;
+  }
+  .pair-chip:hover{
+    border-color:var(--teal);
+    color:var(--teal);
+    background:rgba(13,148,136,0.06);
+    transform:translateY(-1px);
+  }
+
+  .compatibility-result {
+    margin-top: 28px;
+    padding: 22px 24px;
+    border-radius: 14px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size:0.9rem;
+    line-height:1.7;
+    transition:border-color .2s ease, background .2s ease;
+  }
+
+  /* ================= LEGEND / SEVERITY ================= */
+  .legend-section{
+    max-width:1320px;
+    margin:0 auto 100px;
+    padding:0 48px;
+  }
+  .legend-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+  }
+  .legend-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:26px;
+    box-shadow:var(--shadow-sm);
+    border-top:3px solid var(--line);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .legend-card:hover{transform:translateY(-4px); box-shadow:var(--shadow-md);}
+  .legend-card.compatible{border-top-color:var(--green);}
+  .legend-card.caution{border-top-color:var(--amber);}
+  .legend-card.incompatible{border-top-color:var(--red);}
+  .legend-dot{
+    width:12px;height:12px;border-radius:50%;margin-bottom:14px;
+  }
+  .legend-card.compatible .legend-dot{background:var(--green); box-shadow:0 0 0 5px rgba(26,158,107,0.14);}
+  .legend-card.caution .legend-dot{background:var(--amber); box-shadow:0 0 0 5px rgba(224,138,31,0.14);}
+  .legend-card.incompatible .legend-dot{background:var(--red); box-shadow:0 0 0 5px rgba(224,86,63,0.14);}
+  .legend-card h4{
+    font-family:var(--display);
+    font-size:1.02rem;
+    margin-bottom:8px;
+    color:var(--text);
+  }
+  .legend-card p{
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.55;
+  }
+
+  /* ================= FOOTER ================= */
+  footer{
+    border-top:1px solid var(--line);
+    background:var(--bg-soft);
+    padding:56px 48px 28px;
+  }
+  .footer-grid{
+    max-width:1320px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr 1fr;
+    gap:40px;
+    padding-bottom:36px;
+  }
+  .footer-brand .logo{margin-bottom:14px;}
+  .footer-brand p{
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.6;
+    max-width:32ch;
+  }
+  .footer-col h5{
+    font-family:var(--mono);
+    font-size:0.7rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-soft);
+    margin-bottom:16px;
+  }
+  .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .footer-col ul li{font-size:0.86rem;color:var(--muted); cursor:pointer; transition:color .18s ease;}
+  .footer-col ul li:hover{color:var(--teal);}
+  .footer-bottom{
+    max-width:1320px;
+    margin:0 auto;
+    padding-top:26px;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    color: var(--muted-soft);
+    font-size: 0.78rem;
+    font-family: var(--mono);
+  }
+
+  @media (max-width:900px){
+    .navbar{padding:16px 24px;}
+    .legend-grid{grid-template-columns:1fr;}
+    .footer-grid{grid-template-columns:1fr 1fr;}
+    .section-shell, .interaction-section, .legend-section{padding:0 24px;}
+  }
+  @media (max-width:520px){
+    .nav-links{display:none;}
+    .drug-inputs{grid-template-columns:1fr;}
+    .plus{display:none;}
+    .footer-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo"><span class="rx">Rx</span>Clinical Pharmacy — <span>SRH</span></div>
+    <ul class="nav-links">
+      <li>Drug Profile</li>
+      <li>
+  <a href="iv-incompatibility.html">IV Incompatibility</a>
+</li>
+      <li onclick="document.getElementById('legend').scrollIntoView({behavior:'smooth'})">Reports</li>
+    </ul>
+    <div class="nav-right">
+      <span class="status-pill">Database live</span>
+      <div class="profile">👤</div>
+    </div>
+  </nav>
+
+<section id="interactions" class="interaction-section">
+  <div class="interaction-container">
+
+    <div class="eyebrow">IV compatibility checker</div>
+
+    <h2>Check Drug Compatibility</h2>
+
+    <p class="interaction-description">
+      Search two IV drugs to check their compatibility.
+    </p>
+
+    <div class="drug-inputs">
+
+      <div class="drug-field">
+        <label for="drugA">Drug A</label>
+        <input
+          id="drugA"
+          type="text"
+          placeholder="Enter first drug"
+        />
+      </div>
+
+      <div class="plus">+</div>
+
+      <div class="drug-field">
+        <label for="drugB">Drug B</label>
+        <input
+          id="drugB"
+          type="text"
+          placeholder="Enter second drug"
+        />
+      </div>
+
+    </div>
+
+    <div class="checker-actions">
+      <button id="checkCompatibility" class="cta-btn">
+        Check Compatibility
+      </button>
+    </div>
+
+    <div class="quick-pairs">
+      <div class="quick-pairs-label">Commonly checked pairs</div>
+      <div class="pair-chips">
+        <span class="pair-chip" data-a="Vancomycin" data-b="Piperacillin-Tazobactam">Vancomycin + Piperacillin-Tazobactam</span>
+        <span class="pair-chip" data-a="Furosemide" data-b="Midazolam">Furosemide + Midazolam</span>
+        <span class="pair-chip" data-a="Heparin" data-b="Hydrocortisone">Heparin + Hydrocortisone</span>
+        <span class="pair-chip" data-a="Propofol" data-b="Norepinephrine">Propofol + Norepinephrine</span>
+        <span class="pair-chip" data-a="Insulin" data-b="Potassium Chloride">Insulin + Potassium Chloride</span>
+      </div>
+    </div>
+
+    <div id="compatibilityResult" class="compatibility-result">
+      Enter two drugs and click Check Compatibility.
+    </div>
+
+  </div>
+</section>
+
+  <section id="legend" class="legend-section">
+    <div class="section-head">
+      <div class="eyebrow">Reading your results</div>
+      <h2>What each severity rating means</h2>
+      <p>Every result is graded so you can decide next steps in seconds. Always confirm against your facility's own protocol.</p>
+    </div>
+    <div class="legend-grid">
+      <div class="legend-card compatible">
+        <div class="legend-dot"></div>
+        <h4>Compatible</h4>
+        <p>These medications can typically be co-administered through the same line without a physical or chemical reaction.</p>
+      </div>
+      <div class="legend-card caution">
+        <div class="legend-dot"></div>
+        <h4>Caution / Conditional</h4>
+        <p>Compatibility may depend on concentration, diluent, or contact time — check the notes and consider a flush between doses.</p>
+      </div>
+      <div class="legend-card incompatible">
+        <div class="legend-dot"></div>
+        <h4>Incompatible</h4>
+        <p>Combining these drugs may cause precipitation, degradation, or loss of potency. Administer separately with a line flush.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo"><span class="rx">Rx</span>Clinical Pharmacy — <span>SRH</span></div>
+        <p>A bedside reference for IV drug compatibility, built to help nurses and pharmacists make faster, safer decisions.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Tool</h5>
+        <ul>
+          <li onclick="document.getElementById('interactions').scrollIntoView({behavior:'smooth'})">Compatibility checker</li>
+          <li onclick="document.getElementById('legend').scrollIntoView({behavior:'smooth'})">Severity guide</li>
+          <li>Drug profiles</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li>Facility protocol</li>
+          <li>Report an issue</li>
+          <li>Contact pharmacy</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Disclaimer</h5>
+        <ul>
+          <li style="cursor:default;">For clinical reference only — always confirm with your institution's protocol.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 SRH Clinical Pharmacy. Built for better health tracking.</p>
+      <p>Data updated regularly · Not a substitute for clinical judgment</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+async function checkCompatibility() {
+
+  const drugA = document.getElementById("drugA").value.trim();
+  const drugB = document.getElementById("drugB").value.trim();
+  const result = document.getElementById("compatibilityResult");
+
+  if (!drugA || !drugB) {
+    result.textContent = "Please enter both drugs.";
+    return;
+  }
+
+  result.textContent = "Checking Supabase...";
+
+  // Check A → B
+  let { data, error } = await supabaseClient
+    .from("drug_Incompactibility")
+    .select("*")
+    .ilike("drug_A", drugA)
+    .ilike("drug_B", drugB)
+    .limit(1);
+
+  // If not found, check B → A
+  if (!error && (!data || data.length === 0)) {
+
+    const reverse = await supabaseClient
+      .from("drug_Incompactibility")
+      .select("*")
+      .ilike("drug_A", drugB)
+      .ilike("drug_B", drugA)
+      .limit(1);
+
+    data = reverse.data;
+    error = reverse.error;
+  }
+
+  if (error) {
+    console.error(error);
+    result.innerHTML = `
+      <strong style="color:#ff6b6b;">Supabase Error</strong><br><br>
+      <strong>Message:</strong> ${error.message || "Unknown error"}<br>
+      <strong>Details:</strong> ${error.details || "None"}<br>
+      <strong>Hint:</strong> ${error.hint || "None"}<br>
+      <strong>Code:</strong> ${error.code || "None"}
+    `;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    result.innerHTML = `
+      <strong>No record found</strong><br>
+      No compatibility information is currently available
+      for ${drugA} + ${drugB}.
+    `;
+    return;
+  }
+
+  const record = data[0];
+
+  result.innerHTML = `
+    <strong>Drug A:</strong> ${record.drug_A}<br>
+    <strong>Drug B:</strong> ${record.drug_B}<br><br>
+    <strong>Compatibility:</strong> ${record.Compatibility}<br>
+    <strong>Severity:</strong> ${record.Severity}
+  `;
+}
+
+document
+  .getElementById("checkCompatibility")
+  .addEventListener("click", checkCompatibility);
+
+// Quick pair chips: populate the two fields (does not touch DB logic)
+document.querySelectorAll('.pair-chip').forEach(function (chip) {
+  chip.addEventListener('click', function () {
+    document.getElementById('drugA').value = chip.getAttribute('data-a');
+    document.getElementById('drugB').value = chip.getAttribute('data-b');
+  });
+});
+</script>
+
+</body>
+</html>
