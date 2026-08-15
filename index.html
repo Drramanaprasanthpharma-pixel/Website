@@ -666,7 +666,7 @@ async function checkCompatibility() {
 
   // Check A → B
   let { data, error } = await supabaseClient
-    .from("drug_incompactibility")
+    .from("drug_Incompactibility")
     .select("*")
     .ilike("drug_A", drugA)
     .ilike("drug_B", drugB)
