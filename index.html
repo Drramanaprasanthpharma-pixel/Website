@@ -211,10 +211,10 @@
     height:520px;
     border-radius:22px;
     background:
-      radial-gradient(circle at 75% 15%, rgba(45,212,191,0.14), transparent 55%),
-      radial-gradient(circle at 15% 85%, rgba(224,138,31,0.10), transparent 50%),
-      linear-gradient(165deg, #0e1726, #0a0f1a 70%);
-    border:1px solid #1c2740;
+      radial-gradient(circle at 75% 15%, rgba(255,255,255,0.10), transparent 55%),
+      radial-gradient(circle at 15% 85%, rgba(224,40,55,0.16), transparent 50%),
+      linear-gradient(165deg, #1a1416, #100c0d 70%);
+    border:1px solid #2c2224;
     overflow:hidden;
     box-shadow:var(--shadow-lg);
   }
@@ -240,7 +240,7 @@
     text-transform:uppercase;
     color:#8fa0bc;
   }
-  .scan-label b{color:var(--amber);display:block;font-size:0.74rem;margin-top:3px;}
+  .scan-label b{color:#e02837;display:block;font-size:0.74rem;margin-top:3px;}
   .dose-tag{
     position:absolute;bottom:20px;right:22px;
     font-family:var(--mono);
@@ -249,7 +249,7 @@
     text-align:right;
     line-height:1.5;
   }
-  .dose-tag b{color:var(--teal-light);}
+  .dose-tag b{color:#ffffff;}
   .viewport-badge{
     position:absolute;top:20px;right:22px;
     font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;
@@ -875,11 +875,11 @@
     // ---- Lighting ----
     scene.add(new THREE.AmbientLight(0x445566, 1.1));
 
-    const keyLight = new THREE.PointLight(0x2dd4bf, 2.2, 20);
+    const keyLight = new THREE.PointLight(0xff4d4d, 2.2, 20);
     keyLight.position.set(4, 3, 5);
     scene.add(keyLight);
 
-    const rimLight = new THREE.PointLight(0xf2a541, 1.6, 20);
+    const rimLight = new THREE.PointLight(0xffffff, 1.8, 20);
     rimLight.position.set(-4, -2, -3);
     scene.add(rimLight);
 
@@ -893,25 +893,25 @@
     const bodyLength = 1.6;
 
     const tealMat = new THREE.MeshPhysicalMaterial({
-      color: 0x2dd4bf,
-      metalness: 0.15,
-      roughness: 0.25,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.2,
-      transmission: 0.15,
+      color: 0xf7f5f2,
+      metalness: 0.05,
+      roughness: 0.18,
+      clearcoat: 0.8,
+      clearcoatRoughness: 0.15,
+      transmission: 0.08,
       thickness: 0.6,
-      reflectivity: 0.5
+      reflectivity: 0.6
     });
 
     const amberMat = new THREE.MeshPhysicalMaterial({
-      color: 0xf2a541,
-      metalness: 0.15,
-      roughness: 0.25,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.2,
-      transmission: 0.15,
+      color: 0xd91f36,
+      metalness: 0.1,
+      roughness: 0.2,
+      clearcoat: 0.7,
+      clearcoatRoughness: 0.18,
+      transmission: 0.1,
       thickness: 0.6,
-      reflectivity: 0.5
+      reflectivity: 0.55
     });
 
     // Teal half: dome + half cylinder
@@ -959,7 +959,7 @@
 
     for (let i = 0; i < particleCount; i++) {
       const mat = new THREE.MeshBasicMaterial({
-        color: i % 2 === 0 ? 0x2dd4bf : 0xf2a541,
+        color: i % 2 === 0 ? 0xffffff : 0xe0263f,
         transparent: true,
         opacity: 0.85
       });
@@ -975,7 +975,7 @@
 
     // faint scan ring
     const ringGeo = new THREE.TorusGeometry(2.35, 0.006, 8, 100);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.25 });
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xff5a5a, transparent: true, opacity: 0.25 });
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = Math.PI / 2.3;
     scene.add(ring);
