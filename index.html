@@ -687,16 +687,15 @@ async function checkCompatibility() {
   }
 
   if (error) {
-  console.error(error);
-  result.innerHTML = `
-    <strong style="color:#ff6b6b;">Supabase Error</strong><br><br>
-    <strong>Message:</strong> ${error.message || "Unknown error"}<br>
-    <strong>Details:</strong> ${error.details || "None"}<br>
-    <strong>Hint:</strong> ${error.hint || "None"}<br>
-    <strong>Code:</strong> ${error.code || "None"}
-  `;
-  return;
-}
+    console.error(error);
+    result.innerHTML = `
+      <strong style="color:#ff6b6b;">Supabase Error</strong><br><br>
+      <strong>Message:</strong> ${error.message || "Unknown error"}<br>
+      <strong>Details:</strong> ${error.details || "None"}<br>
+      <strong>Hint:</strong> ${error.hint || "None"}<br>
+      <strong>Code:</strong> ${error.code || "None"}
+    `;
+    return;
   }
 
   if (!data || data.length === 0) {
