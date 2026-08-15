@@ -261,6 +261,44 @@
     font-family:var(--display);
   }
 
+  /* ================= AUTOCOMPLETE ================= */
+  .autocomplete-wrapper{
+    position:relative;
+  }
+  .autocomplete-list{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    right:0;
+    background:var(--panel);
+    border:1px solid var(--line-strong);
+    border-radius:10px;
+    box-shadow:var(--shadow-md);
+    max-height:230px;
+    overflow-y:auto;
+    z-index:60;
+    display:none;
+  }
+  .autocomplete-list.active{
+    display:block;
+  }
+  .autocomplete-item{
+    padding:11px 16px;
+    font-size:0.92rem;
+    color:var(--text);
+    cursor:pointer;
+    border-bottom:1px solid var(--line);
+    transition:background .14s ease, color .14s ease;
+  }
+  .autocomplete-item:last-child{
+    border-bottom:none;
+  }
+  .autocomplete-item:hover,
+  .autocomplete-item.highlighted{
+    background:var(--bg-soft);
+    color:var(--teal);
+  }
+
   .checker-actions{
     display:flex;align-items:center;gap:18px;flex-wrap:wrap;
     margin-top:26px;
@@ -486,24 +524,28 @@
 
     <div class="drug-inputs">
 
-      <div class="drug-field">
+      <div class="drug-field autocomplete-wrapper">
         <label for="drugA">Drug A</label>
         <input
           id="drugA"
           type="text"
           placeholder="Enter first drug"
+          autocomplete="off"
         />
+        <div id="drugASuggestions" class="autocomplete-list"></div>
       </div>
 
       <div class="plus">+</div>
 
-      <div class="drug-field">
+      <div class="drug-field autocomplete-wrapper">
         <label for="drugB">Drug B</label>
         <input
           id="drugB"
           type="text"
           placeholder="Enter second drug"
+          autocomplete="off"
         />
+        <div id="drugBSuggestions" class="autocomplete-list"></div>
       </div>
 
     </div>
@@ -693,7 +735,96 @@ document.querySelectorAll('.pair-chip').forEach(function (chip) {
   chip.addEventListener('click', function () {
     document.getElementById('drugA').value = chip.getAttribute('data-a');
     document.getElementById('drugB').value = chip.getAttribute('data-b');
+    document.getElementById('drugASuggestions').classList.remove('active');
+    document.getElementById('drugBSuggestions').classList.remove('active');
   });
+});
+
+/* ================= AUTOCOMPLETE ================= */
+
+let allDrugNames = [];
+
+async function loadDrugNames() {
+  const { data, error } = await supabaseClient
+    .from("drug_Incompactibility")
+    .select("drug_A, drug_B");
+
+  if (error) {
+    console.error("Failed to load drug list for autocomplete:", error);
+    return;
+  }
+
+  const names = new Set();
+  (data || []).forEach((row) => {
+    if (row.drug_A) names.add(row.drug_A.toString().trim());
+    if (row.drug_B) names.add(row.drug_B.toString().trim());
+  });
+
+  allDrugNames = Array.from(names).sort((a, b) => a.localeCompare(b));
+}
+
+function setupAutocomplete(inputId, listId) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+
+  function hideList() {
+    list.classList.remove("active");
+    list.innerHTML = "";
+  }
+
+  function renderMatches(matches) {
+    list.innerHTML = "";
+    matches.forEach((name) => {
+      const item = document.createElement("div");
+      item.className = "autocomplete-item";
+      item.textContent = name;
+      item.addEventListener("click", () => {
+        input.value = name;
+        hideList();
+      });
+      list.appendChild(item);
+    });
+    list.classList.add("active");
+  }
+
+  input.addEventListener("input", () => {
+    const query = input.value.trim().toLowerCase();
+
+    if (query.length < 3) {
+      hideList();
+      return;
+    }
+
+    const matches = allDrugNames
+      .filter((name) => name.toLowerCase().includes(query))
+      .slice(0, 8);
+
+    if (matches.length === 0) {
+      hideList();
+      return;
+    }
+
+    renderMatches(matches);
+  });
+
+  // Hide dropdown when clicking outside this field
+  document.addEventListener("click", (e) => {
+    if (!input.contains(e.target) && !list.contains(e.target)) {
+      hideList();
+    }
+  });
+
+  // Hide dropdown when field is cleared via Escape or manual delete to empty
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      hideList();
+    }
+  });
+}
+
+loadDrugNames().then(() => {
+  setupAutocomplete("drugA", "drugASuggestions");
+  setupAutocomplete("drugB", "drugBSuggestions");
 });
 </script>
 
