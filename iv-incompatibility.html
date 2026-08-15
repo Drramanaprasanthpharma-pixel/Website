@@ -311,6 +311,50 @@
     transition:border-color .2s ease, background .2s ease;
   }
 
+  .compat-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 12px;
+    border-radius:999px;
+    font-family:var(--mono);
+    font-size:0.78rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    vertical-align:middle;
+  }
+  .compat-badge::before{
+    content:'';
+    width:7px;height:7px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .compat-badge.badge-compatible{
+    color:var(--green);
+    background:rgba(26,158,107,0.12);
+    border:1px solid rgba(26,158,107,0.3);
+  }
+  .compat-badge.badge-compatible::before{background:var(--green);}
+  .compat-badge.badge-caution{
+    color:var(--amber);
+    background:rgba(224,138,31,0.12);
+    border:1px solid rgba(224,138,31,0.3);
+  }
+  .compat-badge.badge-caution::before{background:var(--amber);}
+  .compat-badge.badge-incompatible{
+    color:var(--red);
+    background:rgba(224,86,63,0.12);
+    border:1px solid rgba(224,86,63,0.3);
+  }
+  .compat-badge.badge-incompatible::before{background:var(--red);}
+  .compat-badge.badge-unknown{
+    color:var(--muted);
+    background:rgba(92,108,130,0.1);
+    border:1px solid var(--line-strong);
+  }
+  .compat-badge.badge-unknown::before{background:var(--muted-soft);}
+
   /* ================= LEGEND / SEVERITY ================= */
   .legend-section{
     max-width:1320px;
@@ -428,9 +472,6 @@
       <div class="profile">👤</div>
     </div>
   </nav>
-  <a href="./index.html">
-    ← Back to Main Page
-</a>
 
 <section id="interactions" class="interaction-section">
   <div class="interaction-container">
@@ -613,10 +654,21 @@ async function checkCompatibility() {
 
   const record = data[0];
 
+  const compatText = (record.Compatibility || "").toString().trim();
+  const compatLower = compatText.toLowerCase();
+  let badgeClass = "badge-unknown";
+  if (compatLower.includes("incompatible")) {
+    badgeClass = "badge-incompatible";
+  } else if (compatLower.includes("caution") || compatLower.includes("conditional")) {
+    badgeClass = "badge-caution";
+  } else if (compatLower.includes("compatible")) {
+    badgeClass = "badge-compatible";
+  }
+
   result.innerHTML = `
     <strong>Drug A:</strong> ${record.drug_A}<br>
     <strong>Drug B:</strong> ${record.drug_B}<br><br>
-    <strong>Compatibility:</strong> ${record.Compatibility}<br>
+    <strong>Compatibility:</strong> <span class="compat-badge ${badgeClass}">${compatText}</span><br>
     <strong>Severity:</strong> ${record.Severity}
   `;
 }
