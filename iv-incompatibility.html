@@ -665,11 +665,25 @@ async function checkCompatibility() {
     badgeClass = "badge-compatible";
   }
 
+  // FIX: read Evidence, Reference, and Source URL from the record.
+  // Supabase column is literally named "Source URL" (with a space),
+  // so it must be accessed with bracket notation, not dot notation.
+  const evidenceText = (record.Evidence || "").toString().trim() || "Not available";
+  const referenceText = (record.Reference || "").toString().trim() || "Not available";
+  const sourceUrl = (record["Source URL"] || "").toString().trim();
+
+  const sourceUrlHtml = sourceUrl
+    ? `<a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--teal); word-break:break-all;">${sourceUrl}</a>`
+    : "Not available";
+
   result.innerHTML = `
     <strong>Drug A:</strong> ${record.drug_A}<br>
     <strong>Drug B:</strong> ${record.drug_B}<br><br>
     <strong>Compatibility:</strong> <span class="compat-badge ${badgeClass}">${compatText}</span><br>
-    <strong>Severity:</strong> ${record.Severity}
+    <strong>Severity:</strong> ${record.Severity}<br><br>
+    <strong>Evidence:</strong> ${evidenceText}<br><br>
+    <strong>Reference:</strong> ${referenceText}<br>
+    <strong>Source URL:</strong> ${sourceUrlHtml}
   `;
 }
 
