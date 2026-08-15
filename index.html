@@ -249,6 +249,91 @@
     .cards{grid-template-columns:1fr;}
     .nav-links{display:none;}
   }
+  .interaction-section {
+  max-width: 1100px;
+  margin: 40px auto 90px;
+  padding: 0 48px;
+}
+
+.interaction-container {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 36px;
+}
+
+.interaction-container h2 {
+  font-family: var(--display);
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.interaction-description {
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+
+.drug-inputs {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 18px;
+  align-items: end;
+}
+
+.drug-field label {
+  display: block;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.drug-field input {
+  width: 100%;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+}
+
+.drug-field input:focus {
+  border-color: var(--teal);
+}
+
+.plus {
+  text-align: center;
+  font-size: 1.5rem;
+  color: var(--amber);
+  padding-bottom: 12px;
+}
+
+.compatibility-result {
+  margin-top: 28px;
+  padding: 20px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+@media (max-width: 700px) {
+  .interaction-section {
+    padding: 0 24px;
+  }
+
+  .drug-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .plus {
+    display: none;
+  }
+}
 </style>
 </head>
 <body>
@@ -281,7 +366,51 @@
       <div class="dose-tag">rotate · drag<br><b>scroll to zoom</b></div>
     </div>
   </main>
+<section id="interactions" class="interaction-section">
+  <div class="interaction-container">
 
+    <div class="eyebrow">IV compatibility checker</div>
+
+    <h2>Check Drug Compatibility</h2>
+
+    <p class="interaction-description">
+      Search two IV drugs to check their compatibility.
+    </p>
+
+    <div class="drug-inputs">
+
+      <div class="drug-field">
+        <label for="drugA">Drug A</label>
+        <input
+          id="drugA"
+          type="text"
+          placeholder="Enter first drug"
+        />
+      </div>
+
+      <div class="plus">+</div>
+
+      <div class="drug-field">
+        <label for="drugB">Drug B</label>
+        <input
+          id="drugB"
+          type="text"
+          placeholder="Enter second drug"
+        />
+      </div>
+
+    </div>
+
+    <button id="checkCompatibility" class="cta-btn">
+      Check Compatibility
+    </button>
+
+    <div id="compatibilityResult" class="compatibility-result">
+      Enter two drugs and click Check Compatibility.
+    </div>
+
+  </div>
+</section>
   <section class="cards">
     <div class="card">
       <div class="card-icon">💊</div>
@@ -520,5 +649,73 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
+
+<script>
+async function checkCompatibility() {
+
+  const drugA = document.getElementById("drugA").value.trim();
+  const drugB = document.getElementById("drugB").value.trim();
+  const result = document.getElementById("compatibilityResult");
+
+  if (!drugA || !drugB) {
+    result.textContent = "Please enter both drugs.";
+    return;
+  }
+
+  result.textContent = "Checking Supabase...";
+
+  // Check A → B
+  let { data, error } = await supabaseClient
+    .from("drug_Incompatibility")
+    .select("*")
+    .eq("drug_A", drugA)
+    .eq("drug_B", drugB)
+    .limit(1);
+
+  // If not found, check B → A
+  if (!error && (!data || data.length === 0)) {
+
+    const reverse = await supabaseClient
+      .from("drug_Incompatibility")
+      .select("*")
+      .eq("drug_A", drugB)
+      .eq("drug_B", drugA)
+      .limit(1);
+
+    data = reverse.data;
+    error = reverse.error;
+  }
+
+  if (error) {
+    console.error(error);
+    result.textContent =
+      "Unable to check compatibility. Please try again.";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    result.innerHTML = `
+      <strong>No record found</strong><br>
+      No compatibility information is currently available
+      for ${drugA} + ${drugB}.
+    `;
+    return;
+  }
+
+  const record = data[0];
+
+  result.innerHTML = `
+    <strong>Drug A:</strong> ${record.drug_A}<br>
+    <strong>Drug B:</strong> ${record.drug_B}<br><br>
+    <strong>Compatibility:</strong> ${record.Compatibility}<br>
+    <strong>Severity:</strong> ${record.Severity}
+  `;
+}
+
+document
+  .getElementById("checkCompatibility")
+  .addEventListener("click", checkCompatibility);
+</script>
+
 </body>
 </html>
