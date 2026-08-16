@@ -640,90 +640,154 @@ async function checkCompatibility() {
   const drugA = document.getElementById("drugA").value.trim();
   const drugB = document.getElementById("drugB").value.trim();
   const result = document.getElementById("compatibilityResult");
+  const checkBtn = document.getElementById("checkCompatibility");
 
   if (!drugA || !drugB) {
     result.textContent = "Please enter both drugs.";
     return;
   }
 
+  // Prevent rapid double-click duplicate submissions
+  checkBtn.disabled = true;
   result.textContent = "Checking Supabase...";
 
-  // Check A → B
-  let { data, error } = await supabaseClient
-    .from("drug_Incompactibility")
-    .select("*")
-    .ilike("drug_A", drugA)
-    .ilike("drug_B", drugB)
-    .limit(1);
+  try {
 
-  // If not found, check B → A
-  if (!error && (!data || data.length === 0)) {
-
-    const reverse = await supabaseClient
+    // Check A → B
+    let { data, error } = await supabaseClient
       .from("drug_Incompactibility")
       .select("*")
-      .ilike("drug_A", drugB)
-      .ilike("drug_B", drugA)
+      .ilike("drug_A", drugA)
+      .ilike("drug_B", drugB)
       .limit(1);
 
-    data = reverse.data;
-    error = reverse.error;
-  }
+    // If not found, check B → A
+    if (!error && (!data || data.length === 0)) {
 
-  if (error) {
-    console.error(error);
+      const reverse = await supabaseClient
+        .from("drug_Incompactibility")
+        .select("*")
+        .ilike("drug_A", drugB)
+        .ilike("drug_B", drugA)
+        .limit(1);
+
+      data = reverse.data;
+      error = reverse.error;
+    }
+
+    if (error) {
+      console.error(error);
+      result.innerHTML = `
+        <strong style="color:#ff6b6b;">Supabase Error</strong><br><br>
+        <strong>Message:</strong> ${error.message || "Unknown error"}<br>
+        <strong>Details:</strong> ${error.details || "None"}<br>
+        <strong>Hint:</strong> ${error.hint || "None"}<br>
+        <strong>Code:</strong> ${error.code || "None"}
+      `;
+      return;
+    }
+
+    // ===== Existing record found: unchanged behavior =====
+    if (data && data.length > 0) {
+
+      const record = data[0];
+
+      const compatText = (record.Compatibility || "").toString().trim();
+      const compatLower = compatText.toLowerCase();
+      let badgeClass = "badge-unknown";
+      if (compatLower.includes("incompatible")) {
+        badgeClass = "badge-incompatible";
+      } else if (compatLower.includes("caution") || compatLower.includes("conditional")) {
+        badgeClass = "badge-caution";
+      } else if (compatLower.includes("compatible")) {
+        badgeClass = "badge-compatible";
+      }
+
+      const evidenceText = (record.Evidence || "").toString().trim() || "Not available";
+      const referenceText = (record.Reference || "").toString().trim() || "Not available";
+      const sourceUrl = (record["Source URL"] || "").toString().trim();
+
+      const sourceUrlHtml = sourceUrl
+        ? `<a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--teal); word-break:break-all;">${sourceUrl}</a>`
+        : "Not available";
+
+      result.innerHTML = `
+        <strong>Drug A:</strong> ${record.drug_A}<br>
+        <strong>Drug B:</strong> ${record.drug_B}<br><br>
+        <strong>Compatibility:</strong> <span class="compat-badge ${badgeClass}">${compatText}</span><br>
+        <strong>Severity:</strong> ${record.Severity}<br><br>
+        <strong>Evidence:</strong> ${evidenceText}<br><br>
+        <strong>Reference:</strong> ${referenceText}<br>
+        <strong>Source URL:</strong> ${sourceUrlHtml}
+      `;
+      return;
+    }
+
+    // ===== No record found: new pending-review flow =====
+
+    // Escape commas/parens so they don't break the .or() filter syntax
+    const safeA = drugA.replace(/[,()]/g, "");
+    const safeB = drugB.replace(/[,()]/g, "");
+
+    const { data: existingRequests, error: checkError } = await supabaseClient
+      .from("compatibility_search_requests")
+      .select("id")
+      .eq("status", "pending")
+      .or(
+        `and(drug_a.ilike.${safeA},drug_b.ilike.${safeB}),` +
+        `and(drug_a.ilike.${safeB},drug_b.ilike.${safeA})`
+      )
+      .limit(1);
+
+    if (checkError) {
+      console.error(checkError);
+      result.innerHTML = `
+        Unable to submit this search for review.<br>
+        Please try again.
+      `;
+      return;
+    }
+
+    if (existingRequests && existingRequests.length > 0) {
+      result.innerHTML = `
+        Compatibility information is not currently available for this drug pair.<br><br>
+        This drug pair has already been submitted for review.<br><br>
+        <strong>Status:</strong> Pending review<br><br>
+        Do not assume compatibility.
+      `;
+      return;
+    }
+
+    const { error: insertError } = await supabaseClient
+      .from("compatibility_search_requests")
+      .insert({
+        drug_a: drugA,
+        drug_b: drugB,
+        status: "pending",
+        notes: null
+      });
+
+    if (insertError) {
+      console.error(insertError);
+      result.innerHTML = `
+        Compatibility data was not found, but the search could not be recorded.<br>
+        Please try again.
+      `;
+      return;
+    }
+
     result.innerHTML = `
-      <strong style="color:#ff6b6b;">Supabase Error</strong><br><br>
-      <strong>Message:</strong> ${error.message || "Unknown error"}<br>
-      <strong>Details:</strong> ${error.details || "None"}<br>
-      <strong>Hint:</strong> ${error.hint || "None"}<br>
-      <strong>Code:</strong> ${error.code || "None"}
+      Compatibility information is not currently available for this drug pair.<br><br>
+      Your search has been recorded for review.<br><br>
+      <strong>Drug A:</strong> ${drugA}<br>
+      <strong>Drug B:</strong> ${drugB}<br><br>
+      <strong>Status:</strong> Pending review<br><br>
+      Do not assume compatibility.
     `;
-    return;
+
+  } finally {
+    checkBtn.disabled = false;
   }
-
-  if (!data || data.length === 0) {
-    result.innerHTML = `
-      <strong>No record found</strong><br>
-      No compatibility information is currently available
-      for ${drugA} + ${drugB}.
-    `;
-    return;
-  }
-
-  const record = data[0];
-
-  const compatText = (record.Compatibility || "").toString().trim();
-  const compatLower = compatText.toLowerCase();
-  let badgeClass = "badge-unknown";
-  if (compatLower.includes("incompatible")) {
-    badgeClass = "badge-incompatible";
-  } else if (compatLower.includes("caution") || compatLower.includes("conditional")) {
-    badgeClass = "badge-caution";
-  } else if (compatLower.includes("compatible")) {
-    badgeClass = "badge-compatible";
-  }
-
-  // FIX: read Evidence, Reference, and Source URL from the record.
-  // Supabase column is literally named "Source URL" (with a space),
-  // so it must be accessed with bracket notation, not dot notation.
-  const evidenceText = (record.Evidence || "").toString().trim() || "Not available";
-  const referenceText = (record.Reference || "").toString().trim() || "Not available";
-  const sourceUrl = (record["Source URL"] || "").toString().trim();
-
-  const sourceUrlHtml = sourceUrl
-    ? `<a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--teal); word-break:break-all;">${sourceUrl}</a>`
-    : "Not available";
-
-  result.innerHTML = `
-    <strong>Drug A:</strong> ${record.drug_A}<br>
-    <strong>Drug B:</strong> ${record.drug_B}<br><br>
-    <strong>Compatibility:</strong> <span class="compat-badge ${badgeClass}">${compatText}</span><br>
-    <strong>Severity:</strong> ${record.Severity}<br><br>
-    <strong>Evidence:</strong> ${evidenceText}<br><br>
-    <strong>Reference:</strong> ${referenceText}<br>
-    <strong>Source URL:</strong> ${sourceUrlHtml}
-  `;
 }
 
 document
