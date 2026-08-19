@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinical Dose Calculator</title>
+<style>
+  :root {
+    --bg: #F5F8FA;
+    --surface: #FFFFFF;
+    --ink: #17222C;
+    --ink-soft: #5B6B79;
+    --border: #DCE3E8;
+    --teal: #0E6E67;
+    --teal-dark: #0A4F4A;
+    --teal-tint: #E4F2F0;
+    --alert: #B3261E;
+    --alert-tint: #FBEAE9;
+    --readout-bg: #0B2A28;
+    --readout-fg: #6FF0C9;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(23, 34, 44, 0.06), 0 4px 14px rgba(23, 34, 44, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.4;
+    padding: 32px 20px 60px;
+  }
+
+  .page {
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+
+  header.masthead {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+
+  .mark {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mark svg { width: 22px; height: 22px; }
+
+  header.masthead h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    color: var(--ink-soft);
+    margin: 2px 0 28px;
+    font-size: 0.95rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 22px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .card h2 {
+    font-size: 1.06rem;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .card-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: var(--teal-tint);
+    padding: 3px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .formula {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.8rem;
+    color: var(--teal-dark);
+    background: var(--teal-tint);
+    border: 1px solid #CFE6E2;
+    border-radius: 7px;
+    padding: 8px 10px;
+    margin: 10px 0 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .field {
+    margin-bottom: 12px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 5px;
+  }
+
+  .field .input-wrap {
+    position: relative;
+  }
+
+  .field input[type="number"] {
+    width: 100%;
+    font-size: 1.05rem;
+    padding: 11px 52px 11px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--ink);
+    background: #FCFDFE;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    -moz-appearance: textfield;
+  }
+
+  .field input[type="number"]:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(14, 110, 103, 0.14);
+    background: #fff;
+  }
+
+  .field input.invalid {
+    border-color: var(--alert);
+  }
+
+  .field input.invalid:focus {
+    box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.13);
+  }
+
+  .unit {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-calc {
+    background: var(--teal);
+    color: #fff;
+    flex: 1;
+  }
+
+  .btn-calc:hover { background: var(--teal-dark); }
+
+  .btn-clear {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--border);
+  }
+
+  .btn-clear:hover {
+    border-color: var(--ink-soft);
+    color: var(--ink);
+  }
+
+  .error-msg {
+    font-size: 0.8rem;
+    color: var(--alert);
+    background: var(--alert-tint);
+    border-radius: 7px;
+    padding: 8px 10px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .error-msg.show { display: block; }
+
+  .result {
+    margin-top: 16px;
+    background: var(--readout-bg);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .result .result-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #9FD8CC;
+    font-weight: 600;
+  }
+
+  .result .result-value {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--readout-fg);
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result .result-unit {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.85rem;
+    color: #9FD8CC;
+    margin-left: 4px;
+  }
+
+  .result.empty .result-value { color: #3E5C58; }
+  .result.empty .result-value::after { content: "—"; }
+
+  footer.disclaimer {
+    margin-top: 30px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    background: #FFF8E8;
+    border: 1px solid #F0E0AE;
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+
+  footer.disclaimer strong { color: #8A6A0A; }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3V21M4 12H20" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1>Clinical Dose Calculator</h1>
+  </header>
+  <p class="subtitle">Quick-reference calculators for common pharmacy dosing conversions.</p>
+
+  <div class="grid">
+
+    <!-- 1. Weight-Based Dose -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Weight-Based Dose</h2>
+        <span class="card-tag">mg</span>
+      </div>
+      <div class="formula">Dose (mg) = Dose (mg/kg) × Body weight (kg)</div>
+
+      <div class="field">
+        <label for="wb-dose">Dose ordered</label>
+        <div class="input-wrap">
+          <input type="number" id="wb-dose" step="any" placeholder="e.g. 5">
+          <span class="unit">mg/kg</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="wb-weight">Body weight</label>
+        <div class="input-wrap">
+          <input type="number" id="wb-weight" step="any" placeholder="e.g. 70">
+          <span class="unit">kg</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcWeightBased()">Calculate</button>
+        <button class="btn-clear" onclick="clearCard('wb')">Clear</button>
+      </div>
+
+      <div class="error-msg" id="wb-error"></div>
+
+      <div class="result empty" id="wb-result">
+        <span class="result-label">Total dose</span>
+        <span><span class="result-value" id="wb-value"></span><span class="result-unit" id="wb-unit"></span></span>
+      </div>
+    </section>
+
+    <!-- 2. Injection Volume -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Injection Volume</h2>
+        <span class="card-tag">mL</span>
+      </div>
+      <div class="formula">Vol (mL) = (Dose ordered ÷ Dose available) × Vol available</div>
+
+      <div class="field">
+        <label for="iv-ordered">Dose ordered</label>
+        <div class="input-wrap">
+          <input type="number" id="iv-ordered" step="any" placeholder="e.g. 250">
+          <span class="unit">mg</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="iv-available">Dose available</label>
+        <div class="input-wrap">
+          <input type="number" id="iv-available" step="any" placeholder="e.g. 500">
+          <span class="unit">mg</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="iv-volume">Volume available</label>
+        <div class="input-wrap">
+          <input type="number" id="iv-volume" step="any" placeholder="e.g. 10">
+          <span class="unit">mL</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcInjectionVolume()">Calculate</button>
+        <button class="btn-clear" onclick="clearCard('iv')">Clear</button>
+      </div>
+
+      <div class="error-msg" id="iv-error"></div>
+
+      <div class="result empty" id="iv-result">
+        <span class="result-label">Volume to administer</span>
+        <span><span class="result-value" id="iv-value"></span><span class="result-unit" id="iv-unit"></span></span>
+      </div>
+    </section>
+
+    <!-- 3. Infusion Rate -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Infusion Rate</h2>
+        <span class="card-tag">mL/hr</span>
+      </div>
+      <div class="formula">Rate (mL/hr) = Total volume (mL) ÷ Time (hr)</div>
+
+      <div class="field">
+        <label for="ir-volume">Total volume</label>
+        <div class="input-wrap">
+          <input type="number" id="ir-volume" step="any" placeholder="e.g. 1000">
+          <span class="unit">mL</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="ir-time">Infusion time</label>
+        <div class="input-wrap">
+          <input type="number" id="ir-time" step="any" placeholder="e.g. 8">
+          <span class="unit">hr</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcInfusionRate()">Calculate</button>
+        <button class="btn-clear" onclick="clearCard('ir')">Clear</button>
+      </div>
+
+      <div class="error-msg" id="ir-error"></div>
+
+      <div class="result empty" id="ir-result">
+        <span class="result-label">Infusion rate</span>
+        <span><span class="result-value" id="ir-value"></span><span class="result-unit" id="ir-unit"></span></span>
+      </div>
+    </section>
+
+    <!-- 4. mcg/kg/min to mL/hr -->
+    <section class="card">
+      <div class="card-head">
+        <h2>mcg/kg/min → mL/hr</h2>
+        <span class="card-tag">mL/hr</span>
+      </div>
+      <div class="formula">mL/hr = (Dose × Weight × 60) ÷ Concentration</div>
+
+      <div class="field">
+        <label for="mk-dose">Dose</label>
+        <div class="input-wrap">
+          <input type="number" id="mk-dose" step="any" placeholder="e.g. 5">
+          <span class="unit">mcg/kg/min</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="mk-weight">Body weight</label>
+        <div class="input-wrap">
+          <input type="number" id="mk-weight" step="any" placeholder="e.g. 70">
+          <span class="unit">kg</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="mk-conc">Drug concentration</label>
+        <div class="input-wrap">
+          <input type="number" id="mk-conc" step="any" placeholder="e.g. 4000">
+          <span class="unit">mcg/mL</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcMcgKgMin()">Calculate</button>
+        <button class="btn-clear" onclick="clearCard('mk')">Clear</button>
+      </div>
+
+      <div class="error-msg" id="mk-error"></div>
+
+      <div class="result empty" id="mk-result">
+        <span class="result-label">Infusion rate</span>
+        <span><span class="result-value" id="mk-value"></span><span class="result-unit" id="mk-unit"></span></span>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="disclaimer">
+    <strong>Disclaimer:</strong> For calculation assistance only. Always verify the prescribed dose, concentration, units, and patient-specific factors before administration.
+  </footer>
+
+</div>
+
+<script>
+  // ---------- helpers ----------
+
+  function round2(n) {
+    return Math.round((n + Number.EPSILON) * 100) / 100;
+  }
+
+  function fmt(n) {
+    // trims trailing zeros but keeps up to 2 decimal places
+    return round2(n).toString();
+  }
+
+  function getField(id) {
+    return document.getElementById(id);
+  }
+
+  function showError(prefix, message) {
+    const err = getField(prefix + '-error');
+    err.textContent = message;
+    err.classList.add('show');
+  }
+
+  function clearError(prefix) {
+    const err = getField(prefix + '-error');
+    err.textContent = '';
+    err.classList.remove('show');
+  }
+
+  function markInvalid(inputId, invalid) {
+    const el = getField(inputId);
+    el.classList.toggle('invalid', invalid);
+  }
+
+  function setResult(prefix, value, unit) {
+    const resultBox = getField(prefix + '-result');
+    resultBox.classList.remove('empty');
+    getField(prefix + '-value').textContent = fmt(value);
+    getField(prefix + '-unit').textContent = ' ' + unit;
+  }
+
+  function resetResult(prefix, unitLabel) {
+    const resultBox = getField(prefix + '-result');
+    resultBox.classList.add('empty');
+    getField(prefix + '-value').textContent = '';
+    getField(prefix + '-unit').textContent = '';
+  }
+
+  // Validates a list of {id, label} inputs.
+  // Returns array of numeric values if all valid, otherwise null (and shows error).
+  function validateInputs(prefix, fields) {
+    clearError(prefix);
+    fields.forEach(f => markInvalid(f.id, false));
+
+    const values = [];
+    for (const f of fields) {
+      const raw = getField(f.id).value.trim();
+      if (raw === '') {
+        showError(prefix, 'Please enter a value for ' + f.label + '.');
+        markInvalid(f.id, true);
+        return null;
+      }
+      const num = parseFloat(raw);
+      if (isNaN(num)) {
+        showError(prefix, f.label + ' must be a valid number.');
+        markInvalid(f.id, true);
+        return null;
+      }
+      if (num <= 0) {
+        showError(prefix, f.label + ' must be greater than zero.');
+        markInvalid(f.id, true);
+        return null;
+      }
+      values.push(num);
+    }
+    return values;
+  }
+
+  // ---------- 1. Weight-Based Dose ----------
+
+  function calcWeightBased() {
+    const vals = validateInputs('wb', [
+      { id: 'wb-dose', label: 'dose (mg/kg)' },
+      { id: 'wb-weight', label: 'body weight (kg)' }
+    ]);
+    if (!vals) { resetResult('wb'); return; }
+    const [dose, weight] = vals;
+    const total = dose * weight;
+    setResult('wb', total, 'mg');
+  }
+
+  // ---------- 2. Injection Volume ----------
+
+  function calcInjectionVolume() {
+    const vals = validateInputs('iv', [
+      { id: 'iv-ordered', label: 'dose ordered (mg)' },
+      { id: 'iv-available', label: 'dose available (mg)' },
+      { id: 'iv-volume', label: 'volume available (mL)' }
+    ]);
+    if (!vals) { resetResult('iv'); return; }
+    const [ordered, available, vol] = vals;
+    const result = (ordered / available) * vol;
+    setResult('iv', result, 'mL');
+  }
+
+  // ---------- 3. Infusion Rate ----------
+
+  function calcInfusionRate() {
+    const vals = validateInputs('ir', [
+      { id: 'ir-volume', label: 'total volume (mL)' },
+      { id: 'ir-time', label: 'infusion time (hr)' }
+    ]);
+    if (!vals) { resetResult('ir'); return; }
+    const [vol, time] = vals;
+    const rate = vol / time;
+    setResult('ir', rate, 'mL/hr');
+  }
+
+  // ---------- 4. mcg/kg/min to mL/hr ----------
+
+  function calcMcgKgMin() {
+    const vals = validateInputs('mk', [
+      { id: 'mk-dose', label: 'dose (mcg/kg/min)' },
+      { id: 'mk-weight', label: 'body weight (kg)' },
+      { id: 'mk-conc', label: 'drug concentration (mcg/mL)' }
+    ]);
+    if (!vals) { resetResult('mk'); return; }
+    const [dose, weight, conc] = vals;
+    const rate = (dose * weight * 60) / conc;
+    setResult('mk', rate, 'mL/hr');
+  }
+
+  // ---------- Clear ----------
+
+  function clearCard(prefix) {
+    document.querySelectorAll('[id^="' + prefix + '-"]').forEach(el => {
+      if (el.tagName === 'INPUT') {
+        el.value = '';
+        el.classList.remove('invalid');
+      }
+    });
+    clearError(prefix);
+    resetResult(prefix);
+  }
+</script>
+</body>
+</html>
