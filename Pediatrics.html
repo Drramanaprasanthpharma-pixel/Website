@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Ceftriaxone | Pediatric IV Dose Calculator</title>
+<title>Pediatric IV Ceftriaxone Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -413,7 +413,7 @@
 <div class="wrap">
   <header class="hero">
     <div class="drug-chip">Antimicrobial infusion guide</div>
-    <h1>Pediatric IV Dosing Calculator Ceftriaxone</h1>
+    <h1>Pediatric IV Dosing Calculator</h1>
     <p>Enter the patient's weight and ordered dose to check it against ward-side infusion guidance.</p>
   </header>
 
@@ -669,4 +669,49 @@ function render() {
     const markerClass = severity === 'red' ? 'danger' : (severity === 'amber' ? 'warn' : '');
     rulerHtml = `
       <div class="ruler-wrap">
-    
+        <div class="ruler-label-row"><span>0</span><span>Fixed CNS protocol dose</span><span>${fmt(scaleMax,0)} mg/kg/day</span></div>
+        <div class="ruler">
+          <div class="target-line" style="left:${targetPct}%;"></div>
+          <div class="marker ${markerClass}" style="left:${markerPct}%;"></div>
+        </div>
+        <div class="ruler-ticks"><span>0</span><span>${fixed}</span></div>
+        <div class="ruler-caption">${fmt(dosePerKg,1)} mg/kg/day entered</div>
+      </div>`;
+  }
+
+  // ---- warnings html ----
+  const warningsHtml = warnings.map(w => `
+    <div class="banner ${w.level}">
+      <span class="icon">!</span>
+      <div><strong>${w.title}</strong>${w.text}</div>
+    </div>
+  `).join('');
+
+  resultsBody.innerHTML = `
+    <div class="result-headline">
+      <div class="result-block">
+        <div class="rlabel">Total daily dose</div>
+        <div class="rvalue">${fmt(totalMgDay)} mg</div>
+        <div class="rsub">${(totalMgDay/1000).toFixed(2)} g/day</div>
+      </div>
+      <div class="result-block">
+        <div class="rlabel">Divided Q12H</div>
+        <div class="rvalue">${fmt(q12hMg)} mg</div>
+        <div class="rsub">per dose, every 12 hrs</div>
+      </div>
+    </div>
+    ${rulerHtml}
+    ${warningsHtml}
+  `;
+
+  // ---- dilution table highlight ----
+  const { index } = getDilution(weight);
+  dilCols.forEach((col, i) => col.classList.toggle('active', i === index));
+}
+
+// init hint text
+indicationHint.textContent = drug.indications[currentIndication].hintText;
+</script>
+
+</body>
+</html>
