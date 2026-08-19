@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Pediatric IV Ceftriaxone Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14293B;
+    --ink-soft:#4C6478;
+    --paper:#F3F7F8;
+    --card:#FFFFFF;
+    --line:#DCE5E8;
+    --teal:#0E7C86;
+    --teal-dark:#0B626A;
+    --teal-tint:#E3F1F1;
+    --amber:#C97A26;
+    --amber-tint:#FBF0DF;
+    --red:#C23B33;
+    --red-tint:#FBEAE8;
+    --font-display:'Space Grotesk',system-ui,sans-serif;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.5;
+    padding-bottom:48px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    background:linear-gradient(90deg,var(--teal-dark),var(--teal));
+    color:#fff;
+    padding:10px 20px;
+    font-size:12px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .topbar span.dept{opacity:.85;font-weight:500;}
+  .wrap{
+    max-width:520px;
+    margin:0 auto;
+    padding:0 16px;
+  }
+  header.hero{
+    padding:28px 0 20px;
+  }
+  header.hero h1{
+    font-family:var(--font-display);
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header.hero p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14.5px;
+  }
+  .drug-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:var(--teal-tint);
+    color:var(--teal-dark);
+    font-family:var(--font-mono);
+    font-size:12px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:20px;
+    margin-bottom:12px;
+    letter-spacing:.02em;
+  }
+  .drug-chip::before{
+    content:"";
+    width:6px;height:6px;border-radius:50%;
+    background:var(--teal);
+    display:inline-block;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:0 1px 2px rgba(20,41,59,.04);
+  }
+  .card h2{
+    font-family:var(--font-display);
+    font-size:14px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    margin:0 0 16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card h2 .num{
+    font-family:var(--font-mono);
+    color:var(--teal);
+    font-size:12px;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .field{margin-bottom:18px;}
+  .field:last-child{margin-bottom:0;}
+  .hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+  input[type="number"]{
+    width:100%;
+    font-family:var(--font-mono);
+    font-size:17px;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  input[type="number"]:focus{
+    border-color:var(--teal);
+  }
+  .unit-input{position:relative;}
+  .unit-input .unit{
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+    pointer-events:none;
+  }
+  .segmented{
+    display:flex;
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:3px;
+    gap:3px;
+  }
+  .segmented button{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:10px 8px;
+    font-family:var(--font-body);
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    border-radius:6px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .segmented button.active{
+    background:var(--teal);
+    color:#fff;
+    box-shadow:0 1px 3px rgba(11,98,106,.35);
+  }
+  .empty-state{
+    text-align:center;
+    padding:24px 12px;
+    color:var(--ink-soft);
+    font-size:13.5px;
+  }
+  .empty-state svg{margin-bottom:10px;opacity:.5;}
+
+  /* Result headline */
+  .result-headline{
+    display:flex;
+    gap:14px;
+    margin-bottom:18px;
+  }
+  .result-block{
+    flex:1;
+    background:var(--teal-tint);
+    border-radius:8px;
+    padding:14px 14px 12px;
+  }
+  .result-block .rlabel{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--teal-dark);
+    margin-bottom:4px;
+  }
+  .result-block .rvalue{
+    font-family:var(--font-mono);
+    font-size:22px;
+    font-weight:700;
+    color:var(--ink);
+    line-height:1.15;
+  }
+  .result-block .rsub{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+
+  /* Titration ruler */
+  .ruler-wrap{margin:20px 0 22px;}
+  .ruler-label-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    color:var(--ink-soft);
+    font-family:var(--font-mono);
+    margin-bottom:6px;
+  }
+  .ruler{
+    position:relative;
+    height:34px;
+    background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 10%);
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    overflow:visible;
+  }
+  .ruler .zone{
+    position:absolute;
+    top:0;bottom:0;
+    background:var(--teal-tint);
+    border-left:2px solid var(--teal);
+    border-right:2px solid var(--teal);
+  }
+  .ruler .zone.danger{
+    background:var(--red-tint);
+    border-left:2px solid var(--red);
+    border-right:none;
+  }
+  .ruler .target-line{
+    position:absolute;
+    top:0;bottom:0;
+    width:2px;
+    background:var(--teal);
+  }
+  .ruler .marker{
+    position:absolute;
+    top:-11px;
+    transform:translateX(-50%);
+    width:0;height:0;
+    border-left:7px solid transparent;
+    border-right:7px solid transparent;
+    border-top:10px solid var(--ink);
+    transition:left .2s ease;
+  }
+  .ruler .marker.warn{border-top-color:var(--amber);}
+  .ruler .marker.danger{border-top-color:var(--red);}
+  .ruler-ticks{
+    display:flex;
+    justify-content:space-between;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+  .ruler-caption{
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    margin-top:10px;
+  }
+
+  /* warnings */
+  .banner{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    border-radius:8px;
+    padding:12px 14px;
+    font-size:13.5px;
+    margin-bottom:10px;
+    border:1.5px solid transparent;
+  }
+  .banner:last-child{margin-bottom:0;}
+  .banner.amber{background:var(--amber-tint);border-color:#EBC98A;color:#7A4C13;}
+  .banner.red{background:var(--red-tint);border-color:#E8B3AE;color:#7C231D;}
+  .banner .icon{flex-shrink:0;font-weight:700;font-family:var(--font-mono);}
+  .banner strong{display:block;margin-bottom:2px;}
+
+  /* prep table */
+  .prep-row{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    padding:11px 0;
+    border-bottom:1px solid var(--line);
+    font-size:13.5px;
+  }
+  .prep-row:last-child{border-bottom:none;padding-bottom:0;}
+  .prep-row .k{color:var(--ink-soft);font-weight:600;flex-shrink:0;width:38%;}
+  .prep-row .v{text-align:right;flex:1;}
+
+  .dilution-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    margin-bottom:4px;
+  }
+  .dilution-table th{
+    text-align:center;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    font-weight:700;
+    padding-bottom:8px;
+  }
+  .dilution-table td{
+    text-align:center;
+    font-family:var(--font-mono);
+    font-weight:600;
+    padding:10px 4px;
+    border-radius:6px;
+  }
+  .dilution-table td.active{
+    background:var(--teal);
+    color:#fff;
+  }
+
+  .badge-fixed{
+    display:inline-block;
+    background:var(--teal-tint);
+    color:var(--teal-dark);
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:600;
+    padding:3px 8px;
+    border-radius:5px;
+    margin-left:6px;
+  }
+
+  .permanent-warning{
+    background:var(--ink);
+    color:#fff;
+    border-radius:10px;
+    padding:18px 20px;
+    margin-bottom:16px;
+  }
+  .permanent-warning .head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:6px;
+    color:#FFD9A0;
+  }
+  .permanent-warning p{
+    margin:0;
+    font-size:13px;
+    color:#D7E2E6;
+  }
+
+  footer{
+    margin-top:8px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  footer .disclaimer{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:14px;
+    font-size:12.5px;
+  }
+  footer .disclaimer strong{color:var(--ink);}
+  .source{font-family:var(--font-mono);font-size:11px;}
+
+  @media (max-width:380px){
+    .result-headline{flex-direction:column;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span>Sri Ramakrishna Hospital</span>
+  <span class="dept">Pediatrics &amp; Clinical Pharmacy</span>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="drug-chip">Antimicrobial infusion guide</div>
+    <h1>Pediatric IV Dosing Calculator</h1>
+    <p>Enter the patient's weight and ordered dose to check it against ward-side infusion guidance.</p>
+  </header>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <h2><span class="num">01</span> Patient &amp; order</h2>
+
+    <div class="field">
+      <label for="weight">Patient weight</label>
+      <div class="unit-input">
+        <input type="number" id="weight" inputmode="decimal" placeholder="e.g. 14" min="0" step="0.1">
+        <span class="unit">kg</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Indication</label>
+      <div class="segmented" id="indicationToggle">
+        <button type="button" class="active" data-value="standard">Standard infection</button>
+        <button type="button" data-value="cns">CNS infection</button>
+      </div>
+      <div class="hint" id="indicationHint">Recommended 50–75 mg/kg/day · Max 2 g/day</div>
+    </div>
+
+    <div class="field">
+      <label for="dose">Prescribed dose</label>
+      <div class="unit-input">
+        <input type="number" id="dose" inputmode="decimal" placeholder="e.g. 60" min="0" step="0.1">
+        <span class="unit">mg/kg/day</span>
+      </div>
+      <div class="hint">Total daily dose is calculated as dose × weight, then split across the chosen frequency.</div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card" id="resultsCard">
+    <h2><span class="num">02</span> Calculated dose</h2>
+    <div id="resultsBody">
+      <div class="empty-state">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4C6478" stroke-width="1.5"><path d="M9 2h6M12 2v5M6 9h12l1.5 11a2 2 0 01-2 2.2H6.5a2 2 0 01-2-2.2L6 9z"/></svg>
+        <div>Enter weight and dose above to see the calculated infusion.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREP DETAILS -->
+  <div class="card" id="prepCard" style="display:none;">
+    <h2><span class="num">03</span> Preparation &amp; administration</h2>
+
+    <div style="margin-bottom:16px;">
+      <label style="margin-bottom:10px;">Dilution volume by weight</label>
+      <table class="dilution-table">
+        <thead>
+          <tr><th>&lt; 10 kg</th><th>10–20 kg</th><th>&gt; 20 kg</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="dilCol1">15–20 mL</td>
+            <td id="dilCol2">30 mL</td>
+            <td id="dilCol3">50 mL</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prep-row">
+      <div class="k">Compatible IV fluids</div>
+      <div class="v">SWFI, NS, 5% D, 10% D, DNS, ½ DNS</div>
+    </div>
+    <div class="prep-row">
+      <div class="k">Infusion time</div>
+      <div class="v">30–60 min; slow IV push only if age &gt; 12 yrs</div>
+    </div>
+    <div class="prep-row">
+      <div class="k">Storage &amp; stability</div>
+      <div class="v">48 hrs at room temp · 7 days refrigerated</div>
+    </div>
+  </div>
+
+  <!-- PERMANENT SAFETY WARNING -->
+  <div class="permanent-warning">
+    <div class="head">⚠ Calcium incompatibility</div>
+    <p>Do not reconstitute or co-administer Ceftriaxone simultaneously with calcium-containing solutions (including via the same IV line), in any patient population, due to risk of fatal precipitation.</p>
+  </div>
+
+  <footer>
+    <div class="disclaimer">
+      <strong>Clinical verification required.</strong> This tool is a bedside reference aid only and does not replace clinical judgment. All doses must be independently verified against the current hospital protocol and cross-checked by a pediatrician or clinical pharmacist before administration — especially in fluid restriction, renal, or hepatic impairment.
+    </div>
+    <div class="source">
+      Source: Guide for Intravenous Antimicrobial Infusions in Pediatrics — Sri Ramakrishna Hospital, Dept. of Pediatrics &amp; Clinical Pharmacy, 2024. Ceftriaxone data only.
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   DRUG DATA — kept isolated so more antibiotics from the same
+   ward-side guide can be added later by extending DRUG_DATA.
+   All figures sourced from the hospital PDF guide (Ceftriaxone row).
+   ============================================================ */
+const DRUG_DATA = {
+  ceftriaxone: {
+    name: "Ceftriaxone",
+    form: "Powder",
+    indications: {
+      standard: {
+        label: "Standard infection",
+        doseRangeMgKgDay: [50, 75],      // mg/kg/day
+        maxTotalMgDay: 2000,             // 2 g/day
+        frequencyNote: "Single daily dose or divided every 12 hours.",
+        hintText: "Recommended 50–75 mg/kg/day · Max 2 g/day"
+      },
+      cns: {
+        label: "CNS infection",
+        fixedDoseMgKgDay: 100,           // fixed, not a range
+        maxTotalMgDay: 4000,             // 4 g/day
+        frequencyNote: "Single daily dose or divided every 12 hours.",
+        hintText: "Fixed protocol dose: 100 mg/kg/day · Max 4 g/day"
+      }
+    },
+    compatibleFluids: "SWFI, NS, 5% Dextrose, 10% Dextrose, DNS, ½ DNS",
+    incompatibilityWarning: "Do not reconstitute or administer simultaneously with calcium-containing solutions.",
+    dilution: [
+      { bracket: "<10kg", min: 0, max: 10, volume: "15–20 mL" },
+      { bracket: "10-20kg", min: 10, max: 20, volume: "30 mL" },
+      { bracket: ">20kg", min: 20, max: Infinity, volume: "50 mL" }
+    ],
+    infusionTime: "30–60 minutes; slow IV push only permitted above 12 years old.",
+    storage: "48 hours after reconstitution at room temperature, 7 days under refrigeration."
+  }
+};
+
+const drug = DRUG_DATA.ceftriaxone;
+
+// ---- DOM refs ----
+const weightInput = document.getElementById('weight');
+const doseInput = document.getElementById('dose');
+const indicationButtons = document.querySelectorAll('#indicationToggle button');
+const indicationHint = document.getElementById('indicationHint');
+const resultsBody = document.getElementById('resultsBody');
+const prepCard = document.getElementById('prepCard');
+const dilCols = [document.getElementById('dilCol1'), document.getElementById('dilCol2'), document.getElementById('dilCol3')];
+
+let currentIndication = 'standard';
+
+indicationButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    indicationButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentIndication = btn.dataset.value;
+    indicationHint.textContent = drug.indications[currentIndication].hintText;
+    render();
+  });
+});
+
+weightInput.addEventListener('input', render);
+doseInput.addEventListener('input', render);
+
+function fmt(num, decimals) {
+  if (decimals === undefined) decimals = num < 10 ? 2 : 0;
+  return Number(num.toFixed(decimals)).toLocaleString();
+}
+
+function getDilution(weight) {
+  const idx = drug.dilution.findIndex(d => weight >= d.min && weight < d.max);
+  return { row: drug.dilution[idx] || null, index: idx };
+}
+
+function render() {
+  const weight = parseFloat(weightInput.value);
+  const dosePerKg = parseFloat(doseInput.value);
+  const ind = drug.indications[currentIndication];
+
+  const validWeight = !isNaN(weight) && weight > 0;
+  const validDose = !isNaN(dosePerKg) && dosePerKg > 0;
+
+  if (!validWeight || !validDose) {
+    resultsBody.innerHTML = `
+      <div class="empty-state">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4C6478" stroke-width="1.5"><path d="M9 2h6M12 2v5M6 9h12l1.5 11a2 2 0 01-2 2.2H6.5a2 2 0 01-2-2.2L6 9z"/></svg>
+        <div>Enter weight and dose above to see the calculated infusion.</div>
+      </div>`;
+    prepCard.style.display = 'none';
+    return;
+  }
+
+  prepCard.style.display = 'block';
+
+  const totalMgDay = dosePerKg * weight;
+  const q12hMg = totalMgDay / 2;
+  const maxTotal = ind.maxTotalMgDay;
+
+  // ---- range / warning logic ----
+  let warnings = [];
+  let severity = 'ok'; // ok | amber | red
+
+  if (currentIndication === 'standard') {
+    const [lo, hi] = ind.doseRangeMgKgDay;
+    if (dosePerKg < lo || dosePerKg > hi) {
+      warnings.push({
+        level: 'amber',
+        title: 'Dose outside recommended range',
+        text: `${fmt(dosePerKg,1)} mg/kg/day is outside the guide's recommended range of ${lo}–${hi} mg/kg/day for standard infection.`
+      });
+      severity = 'amber';
+    }
+  } else {
+    const fixed = ind.fixedDoseMgKgDay;
+    if (Math.abs(dosePerKg - fixed) > 0.5) {
+      warnings.push({
+        level: 'amber',
+        title: 'Dose differs from CNS protocol',
+        text: `CNS infection dosing in the guide is fixed at ${fixed} mg/kg/day. The entered dose of ${fmt(dosePerKg,1)} mg/kg/day differs from this.`
+      });
+      severity = 'amber';
+    }
+  }
+
+  if (totalMgDay > maxTotal) {
+    warnings.push({
+      level: 'red',
+      title: 'Maximum daily dose exceeded',
+      text: `Calculated total of ${fmt(totalMgDay)} mg/day exceeds the guide's maximum of ${fmt(maxTotal)} mg (${maxTotal/1000} g)/day for ${ind.label.toLowerCase()}.`
+    });
+    severity = 'red';
+  }
+
+  // ---- ruler geometry ----
+  let rulerHtml = '';
+  if (currentIndication === 'standard') {
+    const [lo, hi] = ind.doseRangeMgKgDay;
+    const scaleMax = Math.max(hi * 1.35, dosePerKg * 1.1, hi + 20);
+    const loPct = (lo / scaleMax) * 100;
+    const hiPct = (hi / scaleMax) * 100;
+    const markerPct = Math.min(Math.max((dosePerKg / scaleMax) * 100, 1), 99);
+    const markerClass = severity === 'red' ? 'danger' : (severity === 'amber' ? 'warn' : '');
+    rulerHtml = `
+      <div class="ruler-wrap">
+        <div class="ruler-label-row"><span>0</span><span>Recommended range</span><span>${fmt(scaleMax,0)} mg/kg/day</span></div>
+        <div class="ruler">
+          <div class="zone" style="left:${loPct}%;width:${hiPct-loPct}%;"></div>
+          <div class="marker ${markerClass}" style="left:${markerPct}%;"></div>
+        </div>
+        <div class="ruler-ticks"><span>${lo}</span><span>${hi}</span></div>
+        <div class="ruler-caption">${fmt(dosePerKg,1)} mg/kg/day entered</div>
+      </div>`;
+  } else {
+    const fixed = ind.fixedDoseMgKgDay;
+    const scaleMax = Math.max(fixed * 1.35, dosePerKg * 1.1);
+    const targetPct = (fixed / scaleMax) * 100;
+    const markerPct = Math.min(Math.max((dosePerKg / scaleMax) * 100, 1), 99);
+    const markerClass = severity === 'red' ? 'danger' : (severity === 'amber' ? 'warn' : '');
+    rulerHtml = `
+      <div class="ruler-wrap">
+    
