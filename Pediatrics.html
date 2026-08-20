@@ -3,132 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Pediatric IV Antimicrobial Calculator</title>
+<title>Pediatric IV Antimicrobial Infusion Guide — SRH</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#14293B;
-    --ink-soft:#4C6478;
-    --paper:#F3F7F8;
+    --ink:#101E2A;
+    --ink-soft:#54697A;
+    --ink-faint:#8CA0AE;
+    --paper:#EEF3F2;
     --card:#FFFFFF;
-    --line:#DCE5E8;
-    --teal:#0E7C86;
-    --teal-dark:#0B626A;
-    --teal-tint:#E3F1F1;
-    --amber:#C97A26;
-    --amber-tint:#FBF0DF;
-    --red:#C23B33;
-    --red-tint:#FBEAE8;
+    --line:#D9E4E2;
+    --teal:#0C7C74;
+    --teal-dark:#075B55;
+    --teal-tint:#E0F1EE;
+    --amber:#AD7409;
+    --amber-tint:#FBF0DA;
+    --red:#BD3527;
+    --red-tint:#FAEAE7;
+
+    --readout-bg:#0E1A21;
+    --readout-bg-2:#132631;
+    --readout-line:#24404A;
+    --readout-glow:#5CE8CC;
+    --readout-glow-dim:#2E6E64;
+    --readout-amber:#F0B429;
+    --readout-red:#FF6B5B;
+    --readout-text:#BFD8D6;
+
     --font-display:'Space Grotesk',system-ui,sans-serif;
     --font-body:'Inter',system-ui,-apple-system,sans-serif;
     --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+    --radius:12px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
     background:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(16,30,42,0.05) 1px, transparent 0);
+    background-size:22px 22px;
     color:var(--ink);
     font-family:var(--font-body);
     line-height:1.5;
-    padding-bottom:48px;
+    padding-bottom:56px;
     -webkit-font-smoothing:antialiased;
   }
+  ::selection{background:var(--teal-tint);color:var(--teal-dark);}
+
+  /* ---------- Topbar ---------- */
   .topbar{
-    background:linear-gradient(90deg,var(--teal-dark),var(--teal));
-    color:#fff;
-    padding:10px 20px;
-    font-size:12px;
-    letter-spacing:.06em;
+    background:var(--ink);
+    color:#EAF1F0;
+    padding:11px 18px;
+    font-size:11.5px;
+    letter-spacing:.07em;
     text-transform:uppercase;
     display:flex;
     justify-content:space-between;
     align-items:center;
+    border-bottom:2px solid var(--teal);
   }
-  .topbar span.dept{opacity:.85;font-weight:500;}
-  .wrap{
-    max-width:520px;
-    margin:0 auto;
-    padding:0 16px;
-  }
-  header.hero{
-    padding:28px 0 20px;
-  }
-  header.hero h1{
-    font-family:var(--font-display);
-    font-size:26px;
-    font-weight:700;
-    margin:0 0 6px;
-    letter-spacing:-0.01em;
-  }
-  header.hero p{
-    margin:0;
-    color:var(--ink-soft);
-    font-size:14.5px;
-  }
-  .drug-chip{
+  .topbar .org{font-weight:700;}
+  .topbar .dept{opacity:.65;font-weight:500;}
+
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px;}
+
+  /* ---------- Hero ---------- */
+  header.hero{padding:26px 0 18px;}
+  .eyebrow{
     display:inline-flex;
     align-items:center;
-    gap:6px;
-    background:var(--teal-tint);
-    color:var(--teal-dark);
+    gap:7px;
     font-family:var(--font-mono);
-    font-size:12px;
+    font-size:11px;
     font-weight:600;
-    padding:4px 10px;
+    letter-spacing:.05em;
+    color:var(--teal-dark);
+    background:var(--teal-tint);
+    padding:5px 10px 5px 8px;
     border-radius:20px;
-    margin-bottom:12px;
-    letter-spacing:.02em;
+    margin-bottom:14px;
   }
-  .drug-chip::before{
-    content:"";
-    width:6px;height:6px;border-radius:50%;
-    background:var(--teal);
-    display:inline-block;
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+  header.hero h1{
+    font-family:var(--font-display);
+    font-size:25px;
+    font-weight:700;
+    margin:0 0 7px;
+    letter-spacing:-0.01em;
   }
+  header.hero p{margin:0;color:var(--ink-soft);font-size:14px;max-width:44ch;}
+
+  /* ---------- Cards ---------- */
   .card{
     background:var(--card);
     border:1px solid var(--line);
-    border-radius:10px;
+    border-radius:var(--radius);
     padding:20px;
-    margin-bottom:16px;
-    box-shadow:0 1px 2px rgba(20,41,59,.04);
+    margin-bottom:14px;
+    box-shadow:0 1px 2px rgba(16,30,42,.04);
   }
   .card h2{
     font-family:var(--font-display);
-    font-size:14px;
-    font-weight:600;
+    font-size:13px;
+    font-weight:700;
     text-transform:uppercase;
-    letter-spacing:.06em;
+    letter-spacing:.07em;
     color:var(--ink-soft);
     margin:0 0 16px;
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:9px;
   }
-  .card h2 .num{
+  .card h2 .step{
     font-family:var(--font-mono);
-    color:var(--teal);
-    font-size:12px;
+    color:#fff;
+    background:var(--teal);
+    font-size:10.5px;
+    font-weight:700;
+    width:18px;height:18px;
+    border-radius:5px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
   }
-  label{
-    display:block;
-    font-size:13px;
-    font-weight:600;
-    color:var(--ink);
-    margin-bottom:6px;
-  }
-  .field{margin-bottom:18px;}
+
+  label{display:block;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:.01em;}
+  .field{margin-bottom:17px;}
   .field:last-child{margin-bottom:0;}
-  .hint{
-    font-size:12.5px;
-    color:var(--ink-soft);
-    margin-top:6px;
-  }
+  .hint{font-size:12px;color:var(--ink-faint);margin-top:6px;line-height:1.45;}
+
   input[type="number"], select.drug-select{
     width:100%;
     font-family:var(--font-mono);
-    font-size:17px;
+    font-size:16.5px;
     font-weight:600;
     color:var(--ink);
     background:var(--paper);
@@ -136,319 +147,244 @@
     border-radius:8px;
     padding:12px 14px;
     outline:none;
-    transition:border-color .15s ease;
+    transition:border-color .15s ease, box-shadow .15s ease;
   }
   select.drug-select{
-    -webkit-appearance:none;
-    appearance:none;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234C6478'><path d='M5.5 7.5l4.5 4.5 4.5-4.5H5.5z'/></svg>");
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2354697A'><path d='M5.5 7.5l4.5 4.5 4.5-4.5H5.5z'/></svg>");
     background-repeat:no-repeat;
     background-position:right 12px center;
     background-size:18px;
     padding-right:36px;
-    font-size:15.5px;
+    font-family:var(--font-body);
+    font-size:15px;
+    font-weight:600;
     cursor:pointer;
   }
   input[type="number"]:focus, select.drug-select:focus{
     border-color:var(--teal);
+    box-shadow:0 0 0 3px var(--teal-tint);
   }
   .unit-input{position:relative;}
   .unit-input .unit{
-    position:absolute;
-    right:14px;
-    top:50%;
-    transform:translateY(-50%);
-    font-family:var(--font-mono);
-    font-size:12.5px;
-    color:var(--ink-soft);
-    pointer-events:none;
+    position:absolute;right:14px;top:50%;transform:translateY(-50%);
+    font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);pointer-events:none;
   }
+
   .segmented{
-    display:flex;
-    flex-wrap:wrap;
+    display:flex;flex-wrap:wrap;
     background:var(--paper);
     border:1.5px solid var(--line);
-    border-radius:8px;
-    padding:3px;
-    gap:3px;
+    border-radius:8px;padding:3px;gap:3px;
   }
   .segmented button{
-    flex:1;
-    min-width:120px;
-    border:none;
-    background:transparent;
-    padding:10px 8px;
-    font-family:var(--font-body);
-    font-size:13px;
-    font-weight:600;
-    color:var(--ink-soft);
-    border-radius:6px;
-    cursor:pointer;
+    flex:1;min-width:130px;
+    border:none;background:transparent;
+    padding:9px 8px;
+    font-family:var(--font-body);font-size:12.5px;font-weight:600;
+    color:var(--ink-soft);border-radius:6px;cursor:pointer;
     transition:all .15s ease;
   }
-  .segmented button.active{
-    background:var(--teal);
-    color:#fff;
-    box-shadow:0 1px 3px rgba(11,98,106,.35);
-  }
-  .empty-state{
-    text-align:center;
-    padding:24px 12px;
-    color:var(--ink-soft);
-    font-size:13.5px;
-  }
-  .empty-state svg{margin-bottom:10px;opacity:.5;}
+  .segmented button.active{background:var(--teal);color:#fff;box-shadow:0 1px 3px rgba(7,91,85,.35);}
+  .segmented button:not(.active):hover{background:var(--teal-tint);color:var(--teal-dark);}
 
-  /* Result headline */
-  .result-headline{
-    display:flex;
-    gap:14px;
-    margin-bottom:18px;
+  .class-tag{
+    font-family:var(--font-mono);font-size:10.5px;font-weight:600;
+    color:var(--teal-dark);background:var(--teal-tint);
+    padding:2px 7px;border-radius:5px;letter-spacing:.03em;
   }
-  .result-block{
-    flex:1;
-    background:var(--teal-tint);
-    border-radius:8px;
-    padding:14px 14px 12px;
+  .form-tag{
+    font-family:var(--font-mono);font-size:10.5px;font-weight:600;
+    color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);
+    padding:2px 7px;border-radius:5px;letter-spacing:.03em;
   }
-  .result-block .rlabel{
-    font-size:11px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.05em;
-    color:var(--teal-dark);
-    margin-bottom:4px;
-  }
-  .result-block .rvalue{
-    font-family:var(--font-mono);
-    font-size:22px;
-    font-weight:700;
-    color:var(--ink);
-    line-height:1.15;
-  }
-  .result-block .rsub{
-    font-size:11.5px;
-    color:var(--ink-soft);
-    margin-top:2px;
-  }
+  .tag-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
 
-  /* Titration ruler */
-  .ruler-wrap{margin:20px 0 22px;}
-  .ruler-label-row{
-    display:flex;
-    justify-content:space-between;
-    font-size:11px;
-    color:var(--ink-soft);
-    font-family:var(--font-mono);
-    margin-bottom:6px;
-  }
-  .ruler{
+  .empty-state{text-align:center;padding:22px 10px;color:var(--ink-faint);font-size:13px;}
+  .empty-state svg{margin-bottom:10px;opacity:.55;}
+
+  /* ---------- Readout (signature element) ---------- */
+  .readout{
     position:relative;
-    height:34px;
-    background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 10%);
-    border:1.5px solid var(--line);
-    border-radius:6px;
-    overflow:visible;
+    background:linear-gradient(165deg,var(--readout-bg-2),var(--readout-bg));
+    border-radius:14px;
+    padding:18px 18px 16px;
+    margin-bottom:16px;
+    border:1px solid var(--readout-line);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 6px 18px rgba(9,17,23,.25);
+    overflow:hidden;
   }
-  .ruler .zone{
-    position:absolute;
-    top:0;bottom:0;
-    background:var(--teal-tint);
-    border-left:2px solid var(--teal);
-    border-right:2px solid var(--teal);
+  .readout::before{
+    content:"";
+    position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--readout-glow-dim),transparent);
   }
-  .ruler .target-line{
-    position:absolute;
-    top:0;bottom:0;
-    width:2px;
-    background:var(--teal);
-  }
-  .ruler .marker{
-    position:absolute;
-    top:-11px;
-    transform:translateX(-50%);
-    width:0;height:0;
-    border-left:7px solid transparent;
-    border-right:7px solid transparent;
-    border-top:10px solid var(--ink);
-    transition:left .2s ease;
-  }
-  .ruler .marker.warn{border-top-color:var(--amber);}
-  .ruler .marker.danger{border-top-color:var(--red);}
-  .ruler-ticks{
-    display:flex;
-    justify-content:space-between;
-    font-family:var(--font-mono);
-    font-size:11px;
-    color:var(--ink-soft);
-    margin-top:6px;
-  }
-  .ruler-caption{
-    text-align:center;
-    font-family:var(--font-mono);
-    font-size:13px;
-    font-weight:600;
-    color:var(--ink);
-    margin-top:10px;
-  }
-
-  /* max reference row */
-  .max-row{
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    background:var(--paper);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:10px 12px;
-    font-size:12.5px;
+  .readout-top{
+    display:flex;justify-content:space-between;align-items:center;
     margin-bottom:14px;
   }
-  .max-row .k{color:var(--ink-soft);font-weight:600;flex-shrink:0;}
-  .max-row .v{text-align:right;font-family:var(--font-mono);font-weight:600;}
+  .readout-title{
+    font-family:var(--font-mono);font-size:10.5px;font-weight:600;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--readout-text);opacity:.7;
+  }
+  .readout-led{display:flex;align-items:center;gap:6px;}
+  .readout-led .lamp{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--readout-glow);
+    box-shadow:0 0 8px 1px var(--readout-glow);
+  }
+  .readout-led.warn .lamp{background:var(--readout-amber);box-shadow:0 0 8px 1px var(--readout-amber);}
+  .readout-led.danger .lamp{background:var(--readout-red);box-shadow:0 0 8px 1px var(--readout-red);}
+  .readout-led .lampLabel{
+    font-family:var(--font-mono);font-size:10.5px;font-weight:600;
+    color:var(--readout-glow);letter-spacing:.04em;
+  }
+  .readout-led.warn .lampLabel{color:var(--readout-amber);}
+  .readout-led.danger .lampLabel{color:var(--readout-red);}
 
-  /* warnings */
+  .readout-main{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+  .readout-value{
+    font-family:var(--font-mono);font-weight:700;
+    font-size:38px;line-height:1;color:var(--readout-glow);
+    text-shadow:0 0 18px rgba(92,232,204,.35);
+    letter-spacing:-0.01em;
+  }
+  .readout-led.warn ~ .readout-main .readout-value,
+  .readout.warn .readout-value{color:var(--readout-amber);text-shadow:0 0 18px rgba(240,180,41,.3);}
+  .readout.danger .readout-value{color:var(--readout-red);text-shadow:0 0 18px rgba(255,107,91,.35);}
+  .readout-unit{font-family:var(--font-mono);font-size:14px;color:var(--readout-text);opacity:.75;}
+  .readout-sub{font-family:var(--font-mono);font-size:12px;color:var(--readout-text);opacity:.6;margin-top:6px;}
+  .readout-status{
+    margin-top:12px;
+    font-family:var(--font-body);font-size:12.5px;font-weight:600;
+    color:var(--readout-glow);
+    display:flex;align-items:center;gap:6px;
+  }
+  .readout.warn .readout-status{color:var(--readout-amber);}
+  .readout.danger .readout-status{color:var(--readout-red);}
+
+  /* ---------- Gauge / ruler ---------- */
+  .gauge-wrap{margin-top:16px;}
+  .gauge-labels{
+    display:flex;justify-content:space-between;
+    font-family:var(--font-mono);font-size:10px;color:var(--readout-text);opacity:.55;
+    margin-bottom:6px;
+  }
+  .gauge{
+    position:relative;height:26px;
+    background:#0A151B;
+    border:1px solid var(--readout-line);
+    border-radius:6px;
+  }
+  .gauge .zone{position:absolute;top:0;bottom:0;background:rgba(92,232,204,.16);}
+  .gauge .zone.over{background:rgba(240,180,41,.14);}
+  .gauge .zone.danger{background:rgba(255,107,91,.16);}
+  .gauge .tick{position:absolute;top:0;bottom:0;width:1px;background:var(--readout-line);}
+  .gauge .marker{
+    position:absolute;top:-9px;transform:translateX(-50%);
+    width:0;height:0;
+    border-left:6px solid transparent;border-right:6px solid transparent;
+    border-top:9px solid var(--readout-glow);
+    filter:drop-shadow(0 0 4px rgba(92,232,204,.6));
+    transition:left .25s ease;
+  }
+  .gauge .marker.warn{border-top-color:var(--readout-amber);filter:drop-shadow(0 0 4px rgba(240,180,41,.6));}
+  .gauge .marker.danger{border-top-color:var(--readout-red);filter:drop-shadow(0 0 4px rgba(255,107,91,.6));}
+  .gauge-ticks{
+    display:flex;justify-content:space-between;
+    font-family:var(--font-mono);font-size:10px;color:var(--readout-text);opacity:.5;
+    margin-top:6px;
+  }
+
+  /* ---------- Banners ---------- */
   .banner{
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-    border-radius:8px;
-    padding:12px 14px;
-    font-size:13.5px;
-    margin-bottom:10px;
+    display:flex;gap:10px;align-items:flex-start;
+    border-radius:8px;padding:12px 13px;
+    font-size:13px;margin-bottom:9px;
     border:1.5px solid transparent;
   }
   .banner:last-child{margin-bottom:0;}
-  .banner.amber{background:var(--amber-tint);border-color:#EBC98A;color:#7A4C13;}
-  .banner.red{background:var(--red-tint);border-color:#E8B3AE;color:#7C231D;}
-  .banner .icon{flex-shrink:0;font-weight:700;font-family:var(--font-mono);}
+  .banner.amber{background:var(--amber-tint);border-color:#EAC784;color:#6F4A0A;}
+  .banner.red{background:var(--red-tint);border-color:#E7B0AA;color:#7A241C;}
+  .banner.teal{background:var(--teal-tint);border-color:#A9DAD3;color:var(--teal-dark);}
+  .banner .icon{
+    flex-shrink:0;font-family:var(--font-mono);font-weight:700;
+    width:19px;height:19px;border-radius:5px;
+    display:flex;align-items:center;justify-content:center;font-size:12px;
+    background:rgba(255,255,255,.55);
+  }
   .banner strong{display:block;margin-bottom:2px;}
 
-  /* prep table */
-  .prep-row{
-    display:flex;
-    justify-content:space-between;
-    gap:16px;
-    padding:11px 0;
-    border-bottom:1px solid var(--line);
-    font-size:13.5px;
-  }
-  .prep-row:last-child{border-bottom:none;padding-bottom:0;}
-  .prep-row .k{color:var(--ink-soft);font-weight:600;flex-shrink:0;width:38%;}
-  .prep-row .v{text-align:right;flex:1;}
-
-  .dilution-table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
-    margin-bottom:4px;
-  }
-  .dilution-table th{
-    text-align:center;
-    font-size:10.5px;
-    text-transform:uppercase;
-    letter-spacing:.04em;
-    color:var(--ink-soft);
-    font-weight:700;
-    padding-bottom:8px;
-  }
-  .dilution-table td{
-    text-align:center;
-    font-family:var(--font-mono);
-    font-weight:600;
-    padding:10px 4px;
-    border-radius:6px;
-  }
-  .dilution-table td.active{
-    background:var(--teal);
-    color:#fff;
-  }
-
-  .badge-fixed{
-    display:inline-block;
-    background:var(--teal-tint);
-    color:var(--teal-dark);
-    font-family:var(--font-mono);
-    font-size:11px;
-    font-weight:600;
-    padding:3px 8px;
-    border-radius:5px;
-    margin-left:6px;
-  }
-
-  .permanent-warning{
-    background:var(--ink);
-    color:#fff;
-    border-radius:10px;
-    padding:18px 20px;
-    margin-bottom:16px;
-  }
-  .permanent-warning + .permanent-warning{margin-top:-4px;}
-  .permanent-warning .head{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-family:var(--font-display);
-    font-weight:700;
-    font-size:14px;
-    margin-bottom:6px;
-    color:#FFD9A0;
-  }
-  .permanent-warning p{
-    margin:0;
-    font-size:13px;
-    color:#D7E2E6;
-  }
-
-  footer{
-    margin-top:8px;
-    padding-top:16px;
-    border-top:1px solid var(--line);
-    font-size:11.5px;
-    color:var(--ink-soft);
-    line-height:1.6;
-  }
-  footer .disclaimer{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:14px 16px;
-    margin-bottom:14px;
+  /* ---------- Reference row ---------- */
+  .ref-row{
+    display:flex;justify-content:space-between;gap:10px;
+    padding:9px 0;border-bottom:1px dashed var(--line);
     font-size:12.5px;
   }
-  footer .disclaimer strong{color:var(--ink);}
-  .source{font-family:var(--font-mono);font-size:11px;}
+  .ref-row:last-child{border-bottom:none;}
+  .ref-row .k{color:var(--ink-soft);font-weight:600;flex-shrink:0;}
+  .ref-row .v{text-align:right;font-family:var(--font-mono);font-weight:600;font-size:12px;}
 
-  @media (max-width:380px){
-    .result-headline{flex-direction:column;}
+  /* ---------- Prep rows ---------- */
+  .prep-row{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .prep-row:last-child{border-bottom:none;padding-bottom:0;}
+  .prep-row .k{color:var(--ink-soft);font-weight:600;flex-shrink:0;width:36%;}
+  .prep-row .v{text-align:right;flex:1;}
+
+  .dilution-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:2px;}
+  .dilution-table th{
+    text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--ink-faint);font-weight:700;padding-bottom:8px;
   }
-  @media (prefers-reduced-motion:reduce){
-    *{transition:none !important;}
+  .dilution-table td{
+    text-align:center;font-family:var(--font-mono);font-weight:600;padding:10px 4px;border-radius:6px;
   }
+  .dilution-table td.hi{background:var(--teal-tint);color:var(--teal-dark);}
+  .dilution-single{
+    font-family:var(--font-mono);font-weight:700;font-size:16px;color:var(--teal-dark);
+    background:var(--teal-tint);border-radius:8px;padding:12px;text-align:center;
+  }
+  .dilution-none{
+    font-family:var(--font-body);font-weight:600;font-size:13px;color:var(--ink-soft);
+    background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:12px;text-align:center;
+  }
+
+  footer{margin-top:8px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-faint);line-height:1.6;}
+  footer .disclaimer{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;margin-bottom:14px;font-size:12px;
+  }
+  footer .disclaimer strong{color:var(--ink);}
+  .source{font-family:var(--font-mono);font-size:10.5px;}
+
+  @media (max-width:380px){.readout-value{font-size:32px;}}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <span>Sri Ramakrishna Hospital</span>
+  <span class="org">Sri Ramakrishna Hospital</span>
   <span class="dept">Pediatrics &amp; Clinical Pharmacy</span>
 </div>
 
 <div class="wrap">
   <header class="hero">
-    <div class="drug-chip" id="drugChip">Antimicrobial infusion guide</div>
+    <div class="eyebrow"><span class="dot"></span>Ward-side infusion reference · 19 antimicrobials</div>
     <h1>Pediatric IV Dosing Calculator</h1>
-    <p>Select an antibiotic, enter the patient's weight and ordered dose to check it against ward-side infusion guidance.</p>
+    <p>Select an antibiotic, enter the patient's weight and the prescribed dose to check it against the department's infusion guidance.</p>
   </header>
 
-  <!-- INPUT CARD -->
+  <!-- STEP 1 -->
   <div class="card">
-    <h2><span class="num">01</span> Patient &amp; order</h2>
+    <h2><span class="step">1</span> Patient &amp; order</h2>
 
     <div class="field">
-      <label for="drugSelect">Antibiotic</label>
+      <label for="drugSelect">Antimicrobial</label>
       <select id="drugSelect" class="drug-select"></select>
     </div>
+
+    <div class="tag-row" id="tagRow"></div>
 
     <div class="field">
       <label for="weight">Patient weight</label>
@@ -458,7 +394,7 @@
       </div>
     </div>
 
-    <div class="field" id="indicationField">
+    <div class="field" id="indicationField" style="display:none;">
       <label>Indication</label>
       <div class="segmented" id="indicationToggle"></div>
       <div class="hint" id="indicationHint"></div>
@@ -470,171 +406,556 @@
         <input type="number" id="dose" inputmode="decimal" placeholder="e.g. 60" min="0" step="0.1">
         <span class="unit" id="doseUnit">mg/kg/day</span>
       </div>
-      <div class="hint" id="doseHint">Amount is calculated as dose × weight.</div>
+      <div class="hint" id="doseHint">Enter the per-kg rate exactly as ordered — the calculated amount is dose × weight.</div>
     </div>
   </div>
 
-  <!-- RESULTS -->
+  <!-- STEP 2 -->
   <div class="card" id="resultsCard">
-    <h2><span class="num">02</span> Calculated dose</h2>
+    <h2><span class="step">2</span> Calculated dose</h2>
     <div id="resultsBody">
       <div class="empty-state">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4C6478" stroke-width="1.5"><path d="M9 2h6M12 2v5M6 9h12l1.5 11a2 2 0 01-2 2.2H6.5a2 2 0 01-2-2.2L6 9z"/></svg>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8CA0AE" stroke-width="1.5"><path d="M9 2h6M12 2v5M6 9h12l1.5 11a2 2 0 01-2 2.2H6.5a2 2 0 01-2-2.2L6 9z"/></svg>
         <div>Enter weight and dose above to see the calculated infusion.</div>
       </div>
     </div>
   </div>
 
-  <!-- PREP DETAILS -->
+  <!-- STEP 3 -->
   <div class="card" id="prepCard" style="display:none;">
-    <h2><span class="num">03</span> Preparation &amp; administration</h2>
+    <h2><span class="step">3</span> Preparation &amp; administration</h2>
+    <div id="prepAlerts" style="margin-bottom:14px;"></div>
     <div id="dilutionWrap" style="margin-bottom:16px;"></div>
-    <div class="prep-row">
-      <div class="k">Compatible IV fluids</div>
-      <div class="v" id="prepFluids">—</div>
-    </div>
-    <div class="prep-row">
-      <div class="k">Infusion time</div>
-      <div class="v" id="prepInfusion">—</div>
-    </div>
-    <div class="prep-row">
-      <div class="k">Storage &amp; stability</div>
-      <div class="v" id="prepStorage">—</div>
-    </div>
+    <div class="prep-row"><div class="k">Compatible IV fluids</div><div class="v" id="prepFluids">—</div></div>
+    <div class="prep-row"><div class="k">Infusion time</div><div class="v" id="prepInfusion">—</div></div>
+    <div class="prep-row"><div class="k">Storage &amp; stability</div><div class="v" id="prepStorage">—</div></div>
   </div>
-
-  <!-- DYNAMIC SAFETY WARNING(S) -->
-  <div id="permanentWarnings"></div>
 
   <footer>
     <div class="disclaimer">
       <strong>Clinical verification required.</strong> This tool is a bedside reference aid only and does not replace clinical judgment. All doses must be independently verified against the current hospital protocol and cross-checked by a pediatrician or clinical pharmacist before administration — especially in fluid restriction, renal, or hepatic impairment.
     </div>
     <div class="source">
-      Source: Guide for Intravenous Antimicrobial Infusions in Pediatrics — Sri Ramakrishna Hospital, Dept. of Pediatrics &amp; Clinical Pharmacy, 2024. All 19 drugs in the guide.
+      Source: Guide for Intravenous Antimicrobial Infusions in Pediatrics — Dept. of Pediatrics &amp; Clinical Pharmacy, Sri Ramakrishna Hospital, 2024. Prepared by Dr. Arathi C. Ref: Micromedex–Pediatrics; Lexicomp; The Teddy Bear Book (10th ed.); Frank Shann's Drug Doses 2017; Elsevier's Injectable Drugs 2024; Australian Injectable Drugs Handbook (9th ed.); Children's Hospital Westmead Paediatric Injectable Medicines Handbook; product information leaflets. All 19 drugs in the guide.
     </div>
   </footer>
 </div>
 
 <script>
 /* ============================================================
-   DRUG DATA — every antibiotic row from the SRH ward-side
-   pediatric IV antimicrobial infusion guide (2024).
-   Figures are copied verbatim from the PDF; nothing invented.
+   DRUG DATA — transcribed from the SRH ward-side pediatric IV
+   antimicrobial infusion guide (2024), all 19 entries.
+   NS_TEXT flags anything not stated in the source.
    ============================================================ */
 const NS_TEXT = "Not specified in reference — verify before use.";
 
 const DRUG_DATA = {
 
   ceftriaxone: {
-    name: "Ceftriaxone", form: "Powder", doseBasis: "day",
-    indications: {
-      standard: { label:"Standard infection", doseRange:{type:"range", lo:50, hi:75}, freqText:"Single daily dose or divided Q12H",
-        maxMg:2000, maxText:"2 g/day", maxNote:null },
-      cns: { label:"CNS infection", doseRange:{type:"fixed", value:100}, freqText:"Single daily dose or divided Q12H",
-        maxMg:4000, maxText:"4 g/day", maxNote:null }
-    },
+    name:"Ceftriaxone", class:"Cephalosporin", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:50, hi:75,
+        freqText:"Single daily dose or divided Q12H", maxText:"2 g/day", maxAbsoluteMg:2000, maxNote:null },
+      { key:"cns", label:"CNS infection", basis:"day", rangeType:"fixed", value:100,
+        freqText:"Single daily dose or divided Q12H", maxText:"4 g/day", maxAbsoluteMg:4000, maxNote:null }
+    ],
     fluids:"SWFI, NS, 5% Dextrose, 10% Dextrose, DNS, ½ DNS",
-    incompatible:[{title:"Calcium incompatibility", text:"Do not reconstitute or administer simultaneously with calcium-containing solutions (including via the same IV line), in any patient population, due to risk of fatal precipitation."}],
-    dilution:{type:"tiered", t1:"15–20 mL", t2:"30 mL", t3:"50 mL"},
-    infusionTime:"30–60 minutes; slow IV push only permitted above 12 years old.",
-    storage:"48 hours after reconstitution at room temperature, 7 days under refrigeration."
+    alerts:[{level:"red", title:"Calcium incompatibility", text:"Do not reconstitute or administer simultaneously with calcium-containing solutions, including via the same IV line — risk of fatal precipitation."}],
+    dilution:{mode:"tiered3", lt10:"15–20 mL", t1020:"30 mL", gt20:"50 mL"},
+    infusionTime:"30–60 minutes", infusionNote:"Slow IV push permitted only above 12 years old.",
+    storage:"48 hours after reconstitution at room temperature; 7 days under refrigeration."
   },
 
   amikacin: {
-    name: "Amikacin", form: "Solution", doseBasis: "day",
-    indications:{
-      standard:{ label:"Standard infection", doseRange:{type:"range", lo:15, hi:20}, freqText:"Q24H",
-        maxPerKgDay:20, maxAbsolute:1500, maxText:"15–20 mg/kg/day Q12H, max 1.5 g/day", maxNote:null }
-    },
+    name:"Amikacin", class:"Aminoglycoside", form:"Solution",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:15, hi:20,
+        freqText:"Q24H", maxText:"15–20 mg/kg/day, max 1.5 g/day", maxAbsoluteMg:1500,
+        maxNote:"Source states the once-daily (Q24H) dose but writes the maximum line as \u201c15 to 20 mg/kg/day Q12H, max 1.5 g/day\u201d — the frequency in that line conflicts with the main dosing schedule. Verify frequency against current protocol." }
+    ],
     fluids:"NS, ½ NS, 5% Dextrose, ½ DNS, RL",
-    incompatible:[{title:"Beta-lactam spacing", text:"Leave at least a 60-minute interval before administering a ß-lactam infusion through the same line."}],
-    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
-    infusionTime:"30–60 min, max 120 min in infants.",
+    alerts:[{level:"amber", title:"Beta-lactam spacing", text:"Leave at least a 60-minute interval before or after a β-lactam infusion given through the same line."}],
+    dilution:{mode:"tiered3", lt10:"20 mL", t1020:"40 mL", gt20:"60 mL"},
+    infusionTime:"30–60 minutes", infusionNote:"Maximum 120 minutes in infants.",
     storage:"24 hours at room temperature."
   },
 
   ampicillin: {
-    name: "Ampicillin", form: "Powder", doseBasis: "dose",
-    indications:{
-      standard:{ label:"Standard infection", doseRange:{type:"range", lo:25, hi:50}, freqText:"Q6–8H",
-        maxMg:12000, maxText:"3–12 g/day", maxNote:"Reference states this maximum as total daily dose (3–12 g/day), not per single dose — verify total daily amount and frequency." },
-      severe:{ label:"Severe infection", doseRange:{type:"range", lo:50, hi:100}, freqText:"Q4–6H",
-        maxMg:12000, maxText:"3–12 g/day", maxNote:"Reference states this maximum as total daily dose (3–12 g/day), not per single dose — verify total daily amount and frequency." }
-    },
+    name:"Ampicillin", class:"Penicillin", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"dose", rangeType:"range", lo:25, hi:50,
+        freqText:"Q6–8H", maxText:"3–12 g/day", maxAbsoluteMg:null,
+        maxNote:"Maximum is a total daily amount (3–12 g/day), not a per-dose figure — sum the day's doses to verify against this ceiling." },
+      { key:"severe", label:"Severe infection", basis:"dose", rangeType:"range", lo:50, hi:100,
+        freqText:"Q4–6H", maxText:"3–12 g/day", maxAbsoluteMg:null,
+        maxNote:"Maximum is a total daily amount (3–12 g/day), not a per-dose figure — sum the day's doses to verify against this ceiling." }
+    ],
     fluids:"SWFI, NS, ½ NS, 5% Dextrose, DNS, ½ DNS, RL",
-    incompatible:null,
-    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
-    infusionTime:"Over 30 minutes.",
-    storage:"SWFI/NS/RL — up to 8 hrs at 25°C, 24–48 hrs refrigerated; 5%D/½DNS — 2 hrs at 25°C, 1 hr refrigerated."
+    alerts:[],
+    dilution:{mode:"tiered3", lt10:"20 mL", t1020:"40 mL", gt20:"60 mL"},
+    infusionTime:"Over 30 minutes", infusionNote:null,
+    storage:"SWFI, NS, RL: up to 8 hrs at 25 °C, 24–48 hrs refrigerated. 5% Dextrose, ½ DNS: 2 hrs at 25 °C, 1 hr refrigerated."
   },
 
   cefepime: {
-    name: "Cefepime", form: "Powder", doseBasis: "day",
-    indications:{
-      standard:{ label:"Standard infection", doseRange:{type:"range", lo:100, hi:150}, freqText:"Q8H",
-        maxMg:2000, maxText:"2 g/dose (intermittent); up to 4–6 g/day if continuous infusion", maxNote:"Reference gives a per-dose ceiling of 2 g. Total daily maximum varies by strategy: intermittent 1–2 g/day, extended 2 g/day, continuous 4–6 g/day — verify which applies." }
-    },
+    name:"Cefepime", class:"Cephalosporin", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:100, hi:150,
+        freqText:"Q8H (max 2 g/dose)", maxText:"Intermittent 1–2 g/day (Q8–12H); extended 2 g/day (Q8H); continuous 4–6 g/day", maxAbsoluteMg:null,
+        maxNote:"Maximum depends on infusion strategy — confirm intermittent, extended, or continuous dosing before checking against a ceiling." }
+    ],
     fluids:"SWFI, NS, 5% Dextrose, DRL",
-    incompatible:null,
-    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
-    infusionTime:"1 hour.",
-    storage:"24 hours after dilution, up to 7 days refrigerated (2–8°C)."
+    alerts:[],
+    dilution:{mode:"tiered3", lt10:"20 mL", t1020:"40 mL", gt20:"60 mL"},
+    infusionTime:"1 hour", infusionNote:null,
+    storage:"24 hours after dilution; up to 7 days refrigerated (2–8 °C)."
   },
 
   "cefop-sulb": {
-    name: "Cefoperazone + Sulbactam", form: "Powder", doseBasis: "day",
-    indications:{
-      standard:{ label:"Standard infection", doseRange:{type:"range", lo:80, hi:160}, freqText:"Q6H",
-        maxMg:6000, maxText:"4–6 g/day of cefoperazone", maxNote:"Dose should be calculated on the cefoperazone component of the formulation." }
-    },
+    name:"Cefoperazone + Sulbactam", class:"Cephalosporin", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:80, hi:160,
+        freqText:"Q6H (cefoperazone component)", maxText:"4–6 g/day of cefoperazone", maxAbsoluteMg:6000,
+        maxNote:"Dose and maximum are both calculated on the cefoperazone component of the combination product." }
+    ],
     fluids:"SWFI, NS, 5% Dextrose, DNS",
-    incompatible:null,
-    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
-    infusionTime:"1 hour.",
-    storage:"24 hours after reconstitution at room temperature, up to 7 days at 2–8°C."
+    alerts:[{level:"amber", title:"Component-based dosing", text:"Calculate on the cefoperazone component of the formulation, not the combined total."}],
+    dilution:{mode:"tiered3", lt10:"20 mL", t1020:"40 mL", gt20:"60 mL"},
+    infusionTime:"1 hour", infusionNote:null,
+    storage:"24 hours after reconstitution at room temperature; up to 7 days at 2–8 °C."
   },
 
   cefotaxime: {
-    name: "Cefotaxime", form: "Powder", doseBasis: "day",
-    indications:{
-      standard:{ label:"Standard infection", doseRange:{type:"range", lo:150, hi:200}, freqText:"Q6–8H",
-        maxMg:12000, maxText:"2 g Q6H, max 12 g/day", maxNote:"Individual doses are also capped at 2 g Q6H." }
-    },
+    name:"Cefotaxime", class:"Cephalosporin", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:150, hi:200,
+        freqText:"Q6–8H", maxText:"2 g per Q6H dose, max 12 g/day", maxAbsoluteMg:12000,
+        maxNote:"Individual doses are also capped at 2 g per Q6H administration." }
+    ],
     fluids:"SWFI, NS, 5% Dextrose, 10% Dextrose, RL",
-    incompatible:null,
-    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
-    infusionTime:"30–60 minutes.",
-    storage:"24 hours after reconstitution when stored below 22°C; within 5 days under 2–8°C."
+    alerts:[],
+    dilution:{mode:"tiered3", lt10:"20 mL", t1020:"40 mL", gt20:"60 mL"},
+    infusionTime:"30–60 minutes", infusionNote:null,
+    storage:"24 hours after reconstitution when stored below 22 °C; within 5 days under 2–8 °C."
   },
 
   gentamicin: {
-    name: "Gentamicin", form: "Solution", doseBasis: "dose",
-    indications:{
-      standard:{ label:"Standard infection", doseRange:{type:"fixed", value:7.5}, freqText:"Q24H",
-        maxPerKgDay:7, maxText:"5–7 mg/kg/day Q24H", maxNote:"Reference states this maximum as mg/kg/day; since dosing is once daily, compare against the total daily amount." }
-    },
+    name:"Gentamicin", class:"Aminoglycoside", form:"Solution",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:5, hi:7,
+        freqText:"Q24H (once daily) — source also lists a typical order of 7.5 mg/kg/dose Q24H", maxText:"5–7 mg/kg/day, Q24H", maxAbsoluteMg:null,
+        maxNote:"Source lists a typical order of 7.5 mg/kg/dose Q24H alongside a separate maximum of 5–7 mg/kg/day Q24H — the typical order exceeds that maximum range. Verify against current protocol before administering." }
+    ],
     fluids:"NS, 5% Dextrose",
-    incompatible:null,
-    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
-    infusionTime:"30–60 minutes.",
+    alerts:[],
+    dilution:{mode:"tiered3", lt10:"20 mL", t1020:"40 mL", gt20:"60 mL"},
+    infusionTime:"30–60 minutes", infusionNote:null,
     storage:"Use within 24 hours when stored at room temperature."
   },
 
   meropenem: {
-    name: "Meropenem", form: "Powder", doseBasis: "dose",
-    indications:{
-      standard:{ label:"Standard infection", doseRange:{type:"range", lo:20, hi:40}, freqText:"Q8H",
-        maxMg:2000, maxText:"2 g Q8H", maxNote:null }
-    },
+    name:"Meropenem", class:"Carbapenem", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"dose", rangeType:"range", lo:20, hi:40,
+        freqText:"Q8H", maxText:"2 g per dose, Q8H", maxAbsoluteMg:2000, maxNote:null }
+    ],
     fluids:"SWFI, NS, 5% Dextrose",
-    incompatible:null,
-    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
-    infusionTime:"30 min – 2 hrs; extended infusion over 3 hrs.",
-    storage:"Within 4 hrs after dilution at 25°C (potency loss after 4 hrs); 12–18 hrs at 4°C in plastic syringes."
+    alerts:[],
+    dilution:{mode:"tiered3", lt10:"20 mL", t1020:"40 mL", gt20:"60 mL"},
+    infusionTime:"30 minutes – 2 hours", infusionNote:"Extended infusion over 3 hours is an alternative strategy.",
+    storage:"Within 4 hours after dilution at 25 °C (potency loss after 4 hrs); 12–18 hours at 4 °C in plastic syringes."
   },
 
   "pip-tazo": {
-    name: "Piperacillin + Tazobactam", form: "Powder", doseBasis: "dose",
-    indications:{
-      standard:{ label:"Standard infection", doseRange:{type:"fixed", value:100}, f            
+    name:"Piperacillin + Tazobactam", class:"Penicillin", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"dose", rangeType:"fixed", value:100,
+        freqText:"Q8H (piperacillin component); total ≤400 mg/kg/day", maxText:"4.5 g per dose, Q6–8H", maxAbsoluteMg:4500,
+        maxNote:"Dose and maximum are both calculated on the piperacillin component of the combination product." }
+    ],
+    fluids:"SWFI, NS, ½ NS, 5% Dextrose, RL",
+    alerts:[{level:"amber", title:"Component-based dosing", text:"Calculate on the piperacillin component of the formulation, not the combined total."}],
+    dilution:{mode:"tiered3", lt10:"20 mL", t1020:"40 mL", gt20:"60 mL"},
+    infusionTime:"1 hour", infusionNote:null,
+    storage:"24 hours after reconstitution at room temperature; 48 hours at 2–8 °C."
+  },
+
+  acyclovir: {
+    name:"Acyclovir", class:"Antiviral", form:"Solution",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:30, hi:60,
+        freqText:"Divided Q8H", maxText:"1500 mg/m²/day", maxAbsoluteMg:null,
+        maxNote:"Maximum is expressed per body-surface-area (BSA), not per kg — calculate BSA separately to verify against this ceiling." }
+    ],
+    fluids:"5% Dextrose, NS",
+    alerts:[],
+    dilution:{mode:"tiered3", lt10:"30 mL", t1020:"60 mL", gt20:"100 mL"},
+    infusionTime:"1 hour", infusionNote:null,
+    storage:"24 hours after dilution, stored at room temperature."
+  },
+
+  "ampho-conv": {
+    name:"Amphotericin B (conventional)", class:"Antifungal", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:0.5, hi:1,
+        freqText:"Q24H", maxText:"1.5 mg/kg/day, Q24H", maxAbsoluteMg:null, maxRatePerKg:1.5, maxNote:null }
+    ],
+    fluids:"5% Dextrose, 10% Dextrose only",
+    alerts:[
+      {level:"red", title:"Diluent incompatibility", text:"Not compatible with NS, ½ NS, or DNS. Do not flush the IV line with saline — use SWFI to reconstitute and flush the line with 5% Dextrose before infusion."},
+      {level:"amber", title:"Light-protected infusion", text:"Protect the infusion from light throughout administration."}
+    ],
+    dilution:{mode:"tiered3", lt10:"30 mL", t1020:"60 mL", gt20:"100 mL"},
+    infusionTime:"2 hours", infusionNote:"Light-protected infusion.",
+    storage:"24 hours after reconstitution stored in a refrigerator; do not freeze."
+  },
+
+  "ampho-lipo": {
+    name:"Amphotericin B (liposomal)", class:"Antifungal", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"range", lo:3, hi:5,
+        freqText:"Q24H", maxText:"10–15 mg/kg/day, Q24H", maxAbsoluteMg:null, maxRatePerKg:15, maxNote:null }
+    ],
+    fluids:"SWFI, 5% Dextrose only",
+    alerts:[
+      {level:"red", title:"Diluent incompatibility", text:"Not compatible with NS, ½ NS, or DNS. Do not flush the IV line with saline — use SWFI to reconstitute and flush the line with 5% Dextrose before infusion."},
+      {level:"amber", title:"Light-protected infusion, in-line filter", text:"Protect from light throughout administration and use an in-line filter."}
+    ],
+    dilution:{mode:"tiered3", lt10:"30 mL", t1020:"60 mL", gt20:"100 mL"},
+    infusionTime:"2–4 hours", infusionNote:"Light-protected infusion; use in-line filters.",
+    storage:"Use within 6 hours of reconstitution at room temperature, within 24 hours at 2–8 °C."
+  },
+
+  "amox-clav": {
+    name:"Amoxicillin + Clavulanate", class:"Penicillin", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"fixed", value:100,
+        freqText:"Q8–12H (amoxicillin component)", maxText:"3 g of amoxicillin/day, Q8H", maxAbsoluteMg:3000,
+        maxNote:"Dose and maximum are both calculated on the amoxicillin component of the formulation." }
+    ],
+    fluids:"SWFI, NS",
+    alerts:[{level:"amber", title:"Diluent stability", text:"Not stable in dextrose or Ringer Lactate solutions — use only SWFI or NS."}],
+    dilution:{mode:"tiered3", lt10:"30 mL", t1020:"60 mL", gt20:"100 mL"},
+    infusionTime:"30–60 minutes", infusionNote:null,
+    storage:"2–4 hours after reconstitution at 25 °C; 8 hours after reconstitution refrigerated."
+  },
+
+  doxycycline: {
+    name:"Doxycycline", class:"Other", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"fixed", value:2.2,
+        freqText:"Q12–24H", maxText:"200 mg/day, divided Q12H", maxAbsoluteMg:200, maxNote:null }
+    ],
+    fluids:"SWFI, NS, RL",
+    alerts:[],
+    dilution:{mode:"tiered3", lt10:"30 mL", t1020:"60 mL", gt20:"100 mL"},
+    infusionTime:"1 hour", infusionNote:null,
+    storage:"24–48 hours after reconstitution with NS, below 25 °C protected from light."
+  },
+
+  vancomycin: {
+    name:"Vancomycin", class:"Glycopeptide", form:"Powder",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"dose", rangeType:"fixed", value:10,
+        freqText:"Q6H", maxText:"4 g/day total (across all doses)", maxAbsoluteMg:null,
+        maxNote:"Maximum is a total daily amount across all Q6H doses — sum the day's doses to verify against this ceiling." },
+      { key:"cns", label:"CNS infection", basis:"dose", rangeType:"fixed", value:15,
+        freqText:"Q6H", maxText:"4 g/day total (across all doses)", maxAbsoluteMg:null,
+        maxNote:"Maximum is a total daily amount across all Q6H doses — sum the day's doses to verify against this ceiling." }
+    ],
+    fluids:"NS, 5% Dextrose, RL",
+    alerts:[],
+    dilution:{mode:"tiered3", lt10:"30 mL", t1020:"60 mL", gt20:"100–120 mL"},
+    infusionTime:"2 hours", infusionNote:null,
+    storage:"After dilution, stored in a refrigerator (2–8 °C) for up to 96 hours."
+  },
+
+  "tmp-smx": {
+    name:"Trimethoprim + Sulfamethoxazole", class:"Other", form:"Solution",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"fixed", value:10,
+        freqText:"Divided Q12H (trimethoprim component)", maxText:"160–320 mg/dose of trimethoprim", maxAbsoluteMg:null,
+        maxNote:"Maximum is expressed per individual dose, not per day — divide the calculated daily total by the number of doses to verify." },
+      { key:"pcp", label:"Pneumocystis pneumonia", basis:"day", rangeType:"fixed", value:20,
+        freqText:"Divided Q6H (trimethoprim component)", maxText:"160–320 mg/dose of trimethoprim", maxAbsoluteMg:null,
+        maxNote:"Maximum is expressed per individual dose, not per day — divide the calculated daily total by the number of doses to verify." }
+    ],
+    fluids:"5% Dextrose",
+    alerts:[],
+    dilution:{mode:"single", value:"100 mL", note:"Source table also shows a separate figure of 150–200 mL near this entry — confirm the exact volume against the original guide before preparing."},
+    infusionTime:"60–90 minutes", infusionNote:null,
+    storage:"Use within 2–4 hours."
+  },
+
+  fluconazole: {
+    name:"Fluconazole", class:"Antifungal", form:"Infusion solution",
+    indications:[
+      { key:"invasive-load", label:"Invasive candidiasis — loading", basis:"dose", rangeType:"fixed", value:12,
+        freqText:"Single loading dose", maxText:NS_TEXT, maxAbsoluteMg:null, maxNote:null },
+      { key:"invasive-maint", label:"Invasive candidiasis — maintenance", basis:"day", rangeType:"range", lo:6, hi:12,
+        freqText:"Q24H", maxText:NS_TEXT, maxAbsoluteMg:null, maxNote:null },
+      { key:"prophylaxis", label:"Prophylaxis", basis:"day", rangeType:"range", lo:3, hi:12,
+        freqText:"Q24H", maxText:NS_TEXT, maxAbsoluteMg:null, maxNote:null },
+      { key:"mucosal-load", label:"Mucosal candidiasis — loading", basis:"dose", rangeType:"fixed", value:6,
+        freqText:"Single loading dose", maxText:NS_TEXT, maxAbsoluteMg:null, maxNote:null },
+      { key:"mucosal-maint", label:"Mucosal candidiasis — maintenance", basis:"day", rangeType:"fixed", value:3,
+        freqText:"Q24H", maxText:NS_TEXT, maxAbsoluteMg:null, maxNote:null }
+    ],
+    fluids:"NS, 5% Dextrose",
+    alerts:[],
+    dilution:{mode:"none"},
+    infusionTime:"30–60 minutes", infusionNote:"Do not give as IV push.",
+    storage:"24 hours at room temperature."
+  },
+
+  linezolid: {
+    name:"Linezolid", class:"Other", form:"Infusion solution",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"dose", rangeType:"fixed", value:10,
+        freqText:"Q8–12H", maxText:"600 mg per dose, Q8–12H", maxAbsoluteMg:600, maxNote:null }
+    ],
+    fluids:"NS, 5% Dextrose",
+    alerts:[{level:"amber", title:"Light-protected", text:"Protect from light during storage and administration."}],
+    dilution:{mode:"none"},
+    infusionTime:"30 minutes – 2 hours", infusionNote:null,
+    storage:"24 hours at 25 °C, protected from light."
+  },
+
+  metronidazole: {
+    name:"Metronidazole", class:"Other", form:"Infusion solution",
+    indications:[
+      { key:"standard", label:"Standard infection", basis:"day", rangeType:"fixed", value:30,
+        freqText:"Divided Q6–8H", maxText:"4 g/day", maxAbsoluteMg:4000, maxNote:null }
+    ],
+    fluids:"NS, 5% Dextrose",
+    alerts:[],
+    dilution:{mode:"none"},
+    infusionTime:"30–60 minutes", infusionNote:null,
+    storage:"24 hours, stored at room temperature."
+  }
+};
+
+const CLASS_ORDER = ["Cephalosporin","Aminoglycoside","Penicillin","Carbapenem","Glycopeptide","Antifungal","Antiviral","Other"];
+
+/* ---------- DOM refs ---------- */
+const drugSelect = document.getElementById('drugSelect');
+const tagRow = document.getElementById('tagRow');
+const weightInput = document.getElementById('weight');
+const doseInput = document.getElementById('dose');
+const doseUnit = document.getElementById('doseUnit');
+const doseHint = document.getElementById('doseHint');
+const indicationField = document.getElementById('indicationField');
+const indicationToggle = document.getElementById('indicationToggle');
+const indicationHint = document.getElementById('indicationHint');
+const resultsBody = document.getElementById('resultsBody');
+const prepCard = document.getElementById('prepCard');
+const prepAlerts = document.getElementById('prepAlerts');
+const dilutionWrap = document.getElementById('dilutionWrap');
+const prepFluids = document.getElementById('prepFluids');
+const prepInfusion = document.getElementById('prepInfusion');
+const prepStorage = document.getElementById('prepStorage');
+
+let currentDrugKey = null;
+let currentIndicationKey = null;
+
+/* ---------- Build select ---------- */
+function buildSelect(){
+  const byClass = {};
+  Object.keys(DRUG_DATA).forEach(key=>{
+    const d = DRUG_DATA[key];
+    if(!byClass[d.class]) byClass[d.class] = [];
+    byClass[d.class].push(key);
+  });
+  CLASS_ORDER.forEach(cls=>{
+    if(!byClass[cls]) return;
+    const og = document.createElement('optgroup');
+    og.label = cls + (cls==="Other" ? "" : "s");
+    byClass[cls].forEach(key=>{
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = DRUG_DATA[key].name;
+      og.appendChild(opt);
+    });
+    drugSelect.appendChild(og);
+  });
+}
+buildSelect();
+
+/* ---------- Helpers ---------- */
+function fmtMg(mg){
+  if(mg >= 1000){
+    return mg.toLocaleString(undefined,{maximumFractionDigits:2}) + " mg <span style='opacity:.55;font-weight:500;'>(" + (mg/1000).toLocaleString(undefined,{maximumFractionDigits:2}) + " g)</span>";
+  }
+  return mg.toLocaleString(undefined,{maximumFractionDigits:2}) + " mg";
+}
+function num(v){ return v.toLocaleString(undefined,{maximumFractionDigits:2}); }
+
+/* ---------- Drug change ---------- */
+drugSelect.addEventListener('change', ()=>{
+  currentDrugKey = drugSelect.value;
+  const d = DRUG_DATA[currentDrugKey];
+  currentIndicationKey = d.indications[0].key;
+
+  tagRow.innerHTML =
+    '<span class="class-tag">' + d.class + '</span>' +
+    '<span class="form-tag">' + d.form + '</span>';
+
+  if(d.indications.length > 1){
+    indicationField.style.display = '';
+    indicationToggle.innerHTML = '';
+    d.indications.forEach((ind,i)=>{
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = ind.label;
+      if(i===0) btn.classList.add('active');
+      btn.addEventListener('click', ()=>{
+        currentIndicationKey = ind.key;
+        [...indicationToggle.children].forEach(c=>c.classList.remove('active'));
+        btn.classList.add('active');
+        updateAll();
+      });
+      indicationToggle.appendChild(btn);
+    });
+  } else {
+    indicationField.style.display = 'none';
+  }
+
+  renderPrep(d);
+  updateAll();
+});
+
+/* ---------- Prep card ---------- */
+function renderPrep(d){
+  prepCard.style.display = '';
+  prepAlerts.innerHTML = (d.alerts||[]).map(a=>{
+    const level = a.level === 'red' ? 'red' : 'amber';
+    const icon = a.level === 'red' ? '!!' : '!';
+    return '<div class="banner ' + level + '"><span class="icon">' + icon + '</span><div><strong>' + a.title + '</strong>' + a.text + '</div></div>';
+  }).join('');
+
+  const dil = d.dilution;
+  let html = '';
+  if(dil.mode === 'tiered3'){
+    html += '<div style="font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:8px;letter-spacing:.03em;">DILUTION VOLUME BY WEIGHT</div>';
+    html += '<table class="dilution-table"><tr><th>&lt;10 kg</th><th>10–20 kg</th><th>&gt;20 kg</th></tr>';
+    html += '<tr><td>' + dil.lt10 + '</td><td>' + dil.t1020 + '</td><td class="hi">' + dil.gt20 + '</td></tr></table>';
+  } else if(dil.mode === 'single'){
+    html += '<div style="font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:8px;letter-spacing:.03em;">DILUTION VOLUME</div>';
+    html += '<div class="dilution-single">' + dil.value + '</div>';
+    if(dil.note) html += '<div class="hint" style="margin-top:8px;">' + dil.note + '</div>';
+  } else {
+    html += '<div class="dilution-none">Dilution not needed — ready-to-use ' + d.form.toLowerCase() + '.</div>';
+  }
+  dilutionWrap.innerHTML = html;
+
+  prepFluids.textContent = d.fluids;
+  prepInfusion.innerHTML = d.infusionTime + (d.infusionNote ? '<div class="hint" style="text-align:right;margin-top:3px;">' + d.infusionNote + '</div>' : '');
+  prepStorage.textContent = d.storage;
+}
+
+/* ---------- Results + gauge ---------- */
+function updateAll(){
+  if(!currentDrugKey){ return; }
+  const d = DRUG_DATA[currentDrugKey];
+  const ind = d.indications.find(i=>i.key===currentIndicationKey);
+
+  doseUnit.textContent = ind.basis === 'day' ? 'mg/kg/day' : 'mg/kg/dose';
+  doseHint.textContent = ind.basis === 'day'
+    ? 'Total daily dose = rate × weight.'
+    : 'Amount per dose = rate × weight.';
+  indicationHint.textContent = ind.freqText;
+
+  const weight = parseFloat(weightInput.value);
+  const rate = parseFloat(doseInput.value);
+
+  if(!weight || weight <= 0 || !rate || rate <= 0){
+    resultsBody.innerHTML =
+      '<div class="empty-state"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8CA0AE" stroke-width="1.5"><path d="M9 2h6M12 2v5M6 9h12l1.5 11a2 2 0 01-2 2.2H6.5a2 2 0 01-2-2.2L6 9z"/></svg><div>Enter weight and dose above to see the calculated infusion.</div></div>';
+    return;
+  }
+
+  const totalMg = rate * weight;
+
+  // status vs reference range
+  let status = 'ok', statusText = 'Within typical range', led = '';
+  if(ind.rangeType === 'range'){
+    if(rate < ind.lo){ status='warn'; statusText = 'Below typical range (' + num(ind.lo) + '–' + num(ind.hi) + ' ' + (ind.basis==='day'?'mg/kg/day':'mg/kg/dose') + ')'; }
+    else if(rate > ind.hi){ status='warn'; statusText = 'Above typical range (' + num(ind.lo) + '–' + num(ind.hi) + ' ' + (ind.basis==='day'?'mg/kg/day':'mg/kg/dose') + ')'; }
+    else { statusText = 'Within typical range (' + num(ind.lo) + '–' + num(ind.hi) + ' ' + (ind.basis==='day'?'mg/kg/day':'mg/kg/dose') + ')'; }
+  } else {
+    const tol = ind.value * 0.02;
+    if(Math.abs(rate - ind.value) > tol){ status='warn'; statusText = 'Differs from reference (' + num(ind.value) + ' ' + (ind.basis==='day'?'mg/kg/day':'mg/kg/dose') + ')'; }
+    else { statusText = 'Matches reference (' + num(ind.value) + ' ' + (ind.basis==='day'?'mg/kg/day':'mg/kg/dose') + ')'; }
+  }
+
+  // hard-max checks
+  let exceedsAbsolute = false, exceedsRate = false;
+  if(ind.maxAbsoluteMg && totalMg > ind.maxAbsoluteMg) exceedsAbsolute = true;
+  if(ind.maxRatePerKg && rate > ind.maxRatePerKg) exceedsRate = true;
+  if(exceedsAbsolute || exceedsRate) status = 'danger';
+
+  const basisLabel = ind.basis === 'day' ? 'Total daily dose' : 'Amount per dose';
+
+  let banners = '';
+  if(exceedsAbsolute){
+    banners += '<div class="banner red"><span class="icon">!!</span><div><strong>Exceeds reference maximum</strong>Calculated amount (' + fmtMg(totalMg) + ') is above the stated maximum of ' + ind.maxText + '.</div></div>';
+  }
+  if(exceedsRate){
+    banners += '<div class="banner red"><span class="icon">!!</span><div><strong>Exceeds reference maximum</strong>Entered rate (' + num(rate) + ' mg/kg' + (ind.basis==='day'?'/day':'/dose') + ') is above the stated maximum of ' + ind.maxText + '.</div></div>';
+  }
+  if(ind.maxNote){
+    banners += '<div class="banner amber"><span class="icon">!</span><div><strong>Verify before administering</strong>' + ind.maxNote + '</div></div>';
+  }
+
+  // gauge scale
+  const refHi = ind.rangeType === 'range' ? ind.hi : ind.value;
+  const refLo = ind.rangeType === 'range' ? ind.lo : ind.value;
+  const ceiling = Math.max(refHi, ind.maxRatePerKg || 0, rate) * 1.2;
+  const pct = v => Math.max(0, Math.min(100, (v / ceiling) * 100));
+
+  let zonesHtml = '';
+  if(ind.rangeType === 'range'){
+    zonesHtml += '<div class="zone" style="left:' + pct(refLo) + '%;width:' + (pct(refHi)-pct(refLo)) + '%;"></div>';
+  } else {
+    zonesHtml += '<div class="zone" style="left:' + pct(refLo*0.97) + '%;width:' + (pct(refHi*1.03)-pct(refLo*0.97)) + '%;"></div>';
+  }
+  if(ind.maxRatePerKg){
+    zonesHtml += '<div class="zone over" style="left:' + pct(refHi) + '%;width:' + (pct(ind.maxRatePerKg)-pct(refHi)) + '%;"></div>';
+    zonesHtml += '<div class="zone danger" style="left:' + pct(ind.maxRatePerKg) + '%;width:' + (100-pct(ind.maxRatePerKg)) + '%;"></div>';
+  }
+  const markerClass = status === 'danger' ? 'danger' : (status === 'warn' ? 'warn' : '');
+  zonesHtml += '<div class="marker ' + markerClass + '" style="left:' + pct(rate) + '%;"></div>';
+
+  const ledClass = status === 'danger' ? 'danger' : (status === 'warn' ? 'warn' : '');
+  const readoutClass = status === 'danger' ? 'danger' : (status === 'warn' ? 'warn' : '');
+  const ledText = status === 'danger' ? 'EXCEEDS MAX' : (status === 'warn' ? 'VERIFY' : 'IN RANGE');
+
+  resultsBody.innerHTML =
+    '<div class="readout ' + readoutClass + '">' +
+      '<div class="readout-top">' +
+        '<div class="readout-title">' + d.name + '</div>' +
+        '<div class="readout-led ' + ledClass + '"><span class="lamp"></span><span class="lampLabel">' + ledText + '</span></div>' +
+      '</div>' +
+      '<div class="readout-main"><span class="readout-value">' + fmtMg(totalMg).replace(/<[^>]+>/g,'') + '</span></div>' +
+      '<div class="readout-sub">' + basisLabel + ' · ' + num(rate) + ' mg/kg' + (ind.basis==='day'?'/day':'/dose') + ' × ' + num(weight) + ' kg</div>' +
+      '<div class="readout-status">' + statusText + '</div>' +
+      '<div class="gauge-wrap">' +
+        '<div class="gauge-labels"><span>0</span><span>' + num(ceiling) + ' mg/kg' + (ind.basis==='day'?'/day':'/dose') + '</span></div>' +
+        '<div class="gauge">' + zonesHtml + '</div>' +
+      '</div>' +
+    '</div>' +
+    banners +
+    '<div class="ref-row"><div class="k">Reference dose</div><div class="v">' + (ind.rangeType==='range' ? num(ind.lo)+'–'+num(ind.hi) : num(ind.value)) + ' mg/kg' + (ind.basis==='day'?'/day':'/dose') + '</div></div>' +
+    '<div class="ref-row"><div class="k">Frequency</div><div class="v">' + ind.freqText + '</div></div>' +
+    '<div class="ref-row"><div class="k">Reference maximum</div><div class="v">' + ind.maxText + '</div></div>';
+}
+
+weightInput.addEventListener('input', updateAll);
+doseInput.addEventListener('input', updateAll);
+
+/* init with first drug */
+drugSelect.selectedIndex = 0;
+drugSelect.dispatchEvent(new Event('change'));
+</script>
+</body>
+</html>
