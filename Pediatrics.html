@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Pediatric IV Ceftriaxone Calculator</title>
+<title>Pediatric IV Antimicrobial Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -125,7 +125,7 @@
     color:var(--ink-soft);
     margin-top:6px;
   }
-  input[type="number"]{
+  input[type="number"], select.drug-select{
     width:100%;
     font-family:var(--font-mono);
     font-size:17px;
@@ -138,7 +138,18 @@
     outline:none;
     transition:border-color .15s ease;
   }
-  input[type="number"]:focus{
+  select.drug-select{
+    -webkit-appearance:none;
+    appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234C6478'><path d='M5.5 7.5l4.5 4.5 4.5-4.5H5.5z'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    background-size:18px;
+    padding-right:36px;
+    font-size:15.5px;
+    cursor:pointer;
+  }
+  input[type="number"]:focus, select.drug-select:focus{
     border-color:var(--teal);
   }
   .unit-input{position:relative;}
@@ -154,6 +165,7 @@
   }
   .segmented{
     display:flex;
+    flex-wrap:wrap;
     background:var(--paper);
     border:1.5px solid var(--line);
     border-radius:8px;
@@ -162,11 +174,12 @@
   }
   .segmented button{
     flex:1;
+    min-width:120px;
     border:none;
     background:transparent;
     padding:10px 8px;
     font-family:var(--font-body);
-    font-size:13.5px;
+    font-size:13px;
     font-weight:600;
     color:var(--ink-soft);
     border-radius:6px;
@@ -244,11 +257,6 @@
     border-left:2px solid var(--teal);
     border-right:2px solid var(--teal);
   }
-  .ruler .zone.danger{
-    background:var(--red-tint);
-    border-left:2px solid var(--red);
-    border-right:none;
-  }
   .ruler .target-line{
     position:absolute;
     top:0;bottom:0;
@@ -283,6 +291,21 @@
     color:var(--ink);
     margin-top:10px;
   }
+
+  /* max reference row */
+  .max-row{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:12.5px;
+    margin-bottom:14px;
+  }
+  .max-row .k{color:var(--ink-soft);font-weight:600;flex-shrink:0;}
+  .max-row .v{text-align:right;font-family:var(--font-mono);font-weight:600;}
 
   /* warnings */
   .banner{
@@ -360,6 +383,7 @@
     padding:18px 20px;
     margin-bottom:16px;
   }
+  .permanent-warning + .permanent-warning{margin-top:-4px;}
   .permanent-warning .head{
     display:flex;
     align-items:center;
@@ -412,14 +436,19 @@
 
 <div class="wrap">
   <header class="hero">
-    <div class="drug-chip">Antimicrobial infusion guide</div>
-    <h1>Pediatric IV Dosing Calculator-Ceftriaxone</h1>
-    <p>Enter the patient's weight and ordered dose to check it against ward-side infusion guidance.</p>
+    <div class="drug-chip" id="drugChip">Antimicrobial infusion guide</div>
+    <h1>Pediatric IV Dosing Calculator</h1>
+    <p>Select an antibiotic, enter the patient's weight and ordered dose to check it against ward-side infusion guidance.</p>
   </header>
 
   <!-- INPUT CARD -->
   <div class="card">
     <h2><span class="num">01</span> Patient &amp; order</h2>
+
+    <div class="field">
+      <label for="drugSelect">Antibiotic</label>
+      <select id="drugSelect" class="drug-select"></select>
+    </div>
 
     <div class="field">
       <label for="weight">Patient weight</label>
@@ -429,22 +458,19 @@
       </div>
     </div>
 
-    <div class="field">
+    <div class="field" id="indicationField">
       <label>Indication</label>
-      <div class="segmented" id="indicationToggle">
-        <button type="button" class="active" data-value="standard">Standard infection</button>
-        <button type="button" data-value="cns">CNS infection</button>
-      </div>
-      <div class="hint" id="indicationHint">Recommended 50–75 mg/kg/day · Max 2 g/day</div>
+      <div class="segmented" id="indicationToggle"></div>
+      <div class="hint" id="indicationHint"></div>
     </div>
 
     <div class="field">
       <label for="dose">Prescribed dose</label>
       <div class="unit-input">
         <input type="number" id="dose" inputmode="decimal" placeholder="e.g. 60" min="0" step="0.1">
-        <span class="unit">mg/kg/day</span>
+        <span class="unit" id="doseUnit">mg/kg/day</span>
       </div>
-      <div class="hint">Total daily dose is calculated as dose × weight, then split across the chosen frequency.</div>
+      <div class="hint" id="doseHint">Amount is calculated as dose × weight.</div>
     </div>
   </div>
 
@@ -462,256 +488,153 @@
   <!-- PREP DETAILS -->
   <div class="card" id="prepCard" style="display:none;">
     <h2><span class="num">03</span> Preparation &amp; administration</h2>
-
-    <div style="margin-bottom:16px;">
-      <label style="margin-bottom:10px;">Dilution volume by weight</label>
-      <table class="dilution-table">
-        <thead>
-          <tr><th>&lt; 10 kg</th><th>10–20 kg</th><th>&gt; 20 kg</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td id="dilCol1">15–20 mL</td>
-            <td id="dilCol2">30 mL</td>
-            <td id="dilCol3">50 mL</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
+    <div id="dilutionWrap" style="margin-bottom:16px;"></div>
     <div class="prep-row">
       <div class="k">Compatible IV fluids</div>
-      <div class="v">SWFI, NS, 5% D, 10% D, DNS, ½ DNS</div>
+      <div class="v" id="prepFluids">—</div>
     </div>
     <div class="prep-row">
       <div class="k">Infusion time</div>
-      <div class="v">30–60 min; slow IV push only if age &gt; 12 yrs</div>
+      <div class="v" id="prepInfusion">—</div>
     </div>
     <div class="prep-row">
       <div class="k">Storage &amp; stability</div>
-      <div class="v">48 hrs at room temp · 7 days refrigerated</div>
+      <div class="v" id="prepStorage">—</div>
     </div>
   </div>
 
-  <!-- PERMANENT SAFETY WARNING -->
-  <div class="permanent-warning">
-    <div class="head">⚠ Calcium incompatibility</div>
-    <p>Do not reconstitute or co-administer Ceftriaxone simultaneously with calcium-containing solutions (including via the same IV line), in any patient population, due to risk of fatal precipitation.</p>
-  </div>
+  <!-- DYNAMIC SAFETY WARNING(S) -->
+  <div id="permanentWarnings"></div>
 
   <footer>
     <div class="disclaimer">
       <strong>Clinical verification required.</strong> This tool is a bedside reference aid only and does not replace clinical judgment. All doses must be independently verified against the current hospital protocol and cross-checked by a pediatrician or clinical pharmacist before administration — especially in fluid restriction, renal, or hepatic impairment.
     </div>
     <div class="source">
-      Source: Guide for Intravenous Antimicrobial Infusions in Pediatrics — Sri Ramakrishna Hospital, Dept. of Pediatrics &amp; Clinical Pharmacy, 2024. Ceftriaxone data only.
+      Source: Guide for Intravenous Antimicrobial Infusions in Pediatrics — Sri Ramakrishna Hospital, Dept. of Pediatrics &amp; Clinical Pharmacy, 2024. All 19 drugs in the guide.
     </div>
   </footer>
 </div>
 
 <script>
 /* ============================================================
-   DRUG DATA — kept isolated so more antibiotics from the same
-   ward-side guide can be added later by extending DRUG_DATA.
-   All figures sourced from the hospital PDF guide (Ceftriaxone row).
+   DRUG DATA — every antibiotic row from the SRH ward-side
+   pediatric IV antimicrobial infusion guide (2024).
+   Figures are copied verbatim from the PDF; nothing invented.
    ============================================================ */
+const NS_TEXT = "Not specified in reference — verify before use.";
+
 const DRUG_DATA = {
+
   ceftriaxone: {
-    name: "Ceftriaxone",
-    form: "Powder",
+    name: "Ceftriaxone", form: "Powder", doseBasis: "day",
     indications: {
-      standard: {
-        label: "Standard infection",
-        doseRangeMgKgDay: [50, 75],      // mg/kg/day
-        maxTotalMgDay: 2000,             // 2 g/day
-        frequencyNote: "Single daily dose or divided every 12 hours.",
-        hintText: "Recommended 50–75 mg/kg/day · Max 2 g/day"
-      },
-      cns: {
-        label: "CNS infection",
-        fixedDoseMgKgDay: 100,           // fixed, not a range
-        maxTotalMgDay: 4000,             // 4 g/day
-        frequencyNote: "Single daily dose or divided every 12 hours.",
-        hintText: "Fixed protocol dose: 100 mg/kg/day · Max 4 g/day"
-      }
+      standard: { label:"Standard infection", doseRange:{type:"range", lo:50, hi:75}, freqText:"Single daily dose or divided Q12H",
+        maxMg:2000, maxText:"2 g/day", maxNote:null },
+      cns: { label:"CNS infection", doseRange:{type:"fixed", value:100}, freqText:"Single daily dose or divided Q12H",
+        maxMg:4000, maxText:"4 g/day", maxNote:null }
     },
-    compatibleFluids: "SWFI, NS, 5% Dextrose, 10% Dextrose, DNS, ½ DNS",
-    incompatibilityWarning: "Do not reconstitute or administer simultaneously with calcium-containing solutions.",
-    dilution: [
-      { bracket: "<10kg", min: 0, max: 10, volume: "15–20 mL" },
-      { bracket: "10-20kg", min: 10, max: 20, volume: "30 mL" },
-      { bracket: ">20kg", min: 20, max: Infinity, volume: "50 mL" }
-    ],
-    infusionTime: "30–60 minutes; slow IV push only permitted above 12 years old.",
-    storage: "48 hours after reconstitution at room temperature, 7 days under refrigeration."
-  }
-};
+    fluids:"SWFI, NS, 5% Dextrose, 10% Dextrose, DNS, ½ DNS",
+    incompatible:[{title:"Calcium incompatibility", text:"Do not reconstitute or administer simultaneously with calcium-containing solutions (including via the same IV line), in any patient population, due to risk of fatal precipitation."}],
+    dilution:{type:"tiered", t1:"15–20 mL", t2:"30 mL", t3:"50 mL"},
+    infusionTime:"30–60 minutes; slow IV push only permitted above 12 years old.",
+    storage:"48 hours after reconstitution at room temperature, 7 days under refrigeration."
+  },
 
-const drug = DRUG_DATA.ceftriaxone;
+  amikacin: {
+    name: "Amikacin", form: "Solution", doseBasis: "day",
+    indications:{
+      standard:{ label:"Standard infection", doseRange:{type:"range", lo:15, hi:20}, freqText:"Q24H",
+        maxPerKgDay:20, maxAbsolute:1500, maxText:"15–20 mg/kg/day Q12H, max 1.5 g/day", maxNote:null }
+    },
+    fluids:"NS, ½ NS, 5% Dextrose, ½ DNS, RL",
+    incompatible:[{title:"Beta-lactam spacing", text:"Leave at least a 60-minute interval before administering a ß-lactam infusion through the same line."}],
+    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
+    infusionTime:"30–60 min, max 120 min in infants.",
+    storage:"24 hours at room temperature."
+  },
 
-// ---- DOM refs ----
-const weightInput = document.getElementById('weight');
-const doseInput = document.getElementById('dose');
-const indicationButtons = document.querySelectorAll('#indicationToggle button');
-const indicationHint = document.getElementById('indicationHint');
-const resultsBody = document.getElementById('resultsBody');
-const prepCard = document.getElementById('prepCard');
-const dilCols = [document.getElementById('dilCol1'), document.getElementById('dilCol2'), document.getElementById('dilCol3')];
+  ampicillin: {
+    name: "Ampicillin", form: "Powder", doseBasis: "dose",
+    indications:{
+      standard:{ label:"Standard infection", doseRange:{type:"range", lo:25, hi:50}, freqText:"Q6–8H",
+        maxMg:12000, maxText:"3–12 g/day", maxNote:"Reference states this maximum as total daily dose (3–12 g/day), not per single dose — verify total daily amount and frequency." },
+      severe:{ label:"Severe infection", doseRange:{type:"range", lo:50, hi:100}, freqText:"Q4–6H",
+        maxMg:12000, maxText:"3–12 g/day", maxNote:"Reference states this maximum as total daily dose (3–12 g/day), not per single dose — verify total daily amount and frequency." }
+    },
+    fluids:"SWFI, NS, ½ NS, 5% Dextrose, DNS, ½ DNS, RL",
+    incompatible:null,
+    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
+    infusionTime:"Over 30 minutes.",
+    storage:"SWFI/NS/RL — up to 8 hrs at 25°C, 24–48 hrs refrigerated; 5%D/½DNS — 2 hrs at 25°C, 1 hr refrigerated."
+  },
 
-let currentIndication = 'standard';
+  cefepime: {
+    name: "Cefepime", form: "Powder", doseBasis: "day",
+    indications:{
+      standard:{ label:"Standard infection", doseRange:{type:"range", lo:100, hi:150}, freqText:"Q8H",
+        maxMg:2000, maxText:"2 g/dose (intermittent); up to 4–6 g/day if continuous infusion", maxNote:"Reference gives a per-dose ceiling of 2 g. Total daily maximum varies by strategy: intermittent 1–2 g/day, extended 2 g/day, continuous 4–6 g/day — verify which applies." }
+    },
+    fluids:"SWFI, NS, 5% Dextrose, DRL",
+    incompatible:null,
+    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
+    infusionTime:"1 hour.",
+    storage:"24 hours after dilution, up to 7 days refrigerated (2–8°C)."
+  },
 
-indicationButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    indicationButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentIndication = btn.dataset.value;
-    indicationHint.textContent = drug.indications[currentIndication].hintText;
-    render();
-  });
-});
+  "cefop-sulb": {
+    name: "Cefoperazone + Sulbactam", form: "Powder", doseBasis: "day",
+    indications:{
+      standard:{ label:"Standard infection", doseRange:{type:"range", lo:80, hi:160}, freqText:"Q6H",
+        maxMg:6000, maxText:"4–6 g/day of cefoperazone", maxNote:"Dose should be calculated on the cefoperazone component of the formulation." }
+    },
+    fluids:"SWFI, NS, 5% Dextrose, DNS",
+    incompatible:null,
+    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
+    infusionTime:"1 hour.",
+    storage:"24 hours after reconstitution at room temperature, up to 7 days at 2–8°C."
+  },
 
-weightInput.addEventListener('input', render);
-doseInput.addEventListener('input', render);
+  cefotaxime: {
+    name: "Cefotaxime", form: "Powder", doseBasis: "day",
+    indications:{
+      standard:{ label:"Standard infection", doseRange:{type:"range", lo:150, hi:200}, freqText:"Q6–8H",
+        maxMg:12000, maxText:"2 g Q6H, max 12 g/day", maxNote:"Individual doses are also capped at 2 g Q6H." }
+    },
+    fluids:"SWFI, NS, 5% Dextrose, 10% Dextrose, RL",
+    incompatible:null,
+    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
+    infusionTime:"30–60 minutes.",
+    storage:"24 hours after reconstitution when stored below 22°C; within 5 days under 2–8°C."
+  },
 
-function fmt(num, decimals) {
-  if (decimals === undefined) decimals = num < 10 ? 2 : 0;
-  return Number(num.toFixed(decimals)).toLocaleString();
-}
+  gentamicin: {
+    name: "Gentamicin", form: "Solution", doseBasis: "dose",
+    indications:{
+      standard:{ label:"Standard infection", doseRange:{type:"fixed", value:7.5}, freqText:"Q24H",
+        maxPerKgDay:7, maxText:"5–7 mg/kg/day Q24H", maxNote:"Reference states this maximum as mg/kg/day; since dosing is once daily, compare against the total daily amount." }
+    },
+    fluids:"NS, 5% Dextrose",
+    incompatible:null,
+    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
+    infusionTime:"30–60 minutes.",
+    storage:"Use within 24 hours when stored at room temperature."
+  },
 
-function getDilution(weight) {
-  const idx = drug.dilution.findIndex(d => weight >= d.min && weight < d.max);
-  return { row: drug.dilution[idx] || null, index: idx };
-}
+  meropenem: {
+    name: "Meropenem", form: "Powder", doseBasis: "dose",
+    indications:{
+      standard:{ label:"Standard infection", doseRange:{type:"range", lo:20, hi:40}, freqText:"Q8H",
+        maxMg:2000, maxText:"2 g Q8H", maxNote:null }
+    },
+    fluids:"SWFI, NS, 5% Dextrose",
+    incompatible:null,
+    dilution:{type:"tiered", t1:"20 mL", t2:"40 mL", t3:"60 mL"},
+    infusionTime:"30 min – 2 hrs; extended infusion over 3 hrs.",
+    storage:"Within 4 hrs after dilution at 25°C (potency loss after 4 hrs); 12–18 hrs at 4°C in plastic syringes."
+  },
 
-function render() {
-  const weight = parseFloat(weightInput.value);
-  const dosePerKg = parseFloat(doseInput.value);
-  const ind = drug.indications[currentIndication];
-
-  const validWeight = !isNaN(weight) && weight > 0;
-  const validDose = !isNaN(dosePerKg) && dosePerKg > 0;
-
-  if (!validWeight || !validDose) {
-    resultsBody.innerHTML = `
-      <div class="empty-state">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4C6478" stroke-width="1.5"><path d="M9 2h6M12 2v5M6 9h12l1.5 11a2 2 0 01-2 2.2H6.5a2 2 0 01-2-2.2L6 9z"/></svg>
-        <div>Enter weight and dose above to see the calculated infusion.</div>
-      </div>`;
-    prepCard.style.display = 'none';
-    return;
-  }
-
-  prepCard.style.display = 'block';
-
-  const totalMgDay = dosePerKg * weight;
-  const q12hMg = totalMgDay / 2;
-  const maxTotal = ind.maxTotalMgDay;
-
-  // ---- range / warning logic ----
-  let warnings = [];
-  let severity = 'ok'; // ok | amber | red
-
-  if (currentIndication === 'standard') {
-    const [lo, hi] = ind.doseRangeMgKgDay;
-    if (dosePerKg < lo || dosePerKg > hi) {
-      warnings.push({
-        level: 'amber',
-        title: 'Dose outside recommended range',
-        text: `${fmt(dosePerKg,1)} mg/kg/day is outside the guide's recommended range of ${lo}–${hi} mg/kg/day for standard infection.`
-      });
-      severity = 'amber';
-    }
-  } else {
-    const fixed = ind.fixedDoseMgKgDay;
-    if (Math.abs(dosePerKg - fixed) > 0.5) {
-      warnings.push({
-        level: 'amber',
-        title: 'Dose differs from CNS protocol',
-        text: `CNS infection dosing in the guide is fixed at ${fixed} mg/kg/day. The entered dose of ${fmt(dosePerKg,1)} mg/kg/day differs from this.`
-      });
-      severity = 'amber';
-    }
-  }
-
-  if (totalMgDay > maxTotal) {
-    warnings.push({
-      level: 'red',
-      title: 'Maximum daily dose exceeded',
-      text: `Calculated total of ${fmt(totalMgDay)} mg/day exceeds the guide's maximum of ${fmt(maxTotal)} mg (${maxTotal/1000} g)/day for ${ind.label.toLowerCase()}.`
-    });
-    severity = 'red';
-  }
-
-  // ---- ruler geometry ----
-  let rulerHtml = '';
-  if (currentIndication === 'standard') {
-    const [lo, hi] = ind.doseRangeMgKgDay;
-    const scaleMax = Math.max(hi * 1.35, dosePerKg * 1.1, hi + 20);
-    const loPct = (lo / scaleMax) * 100;
-    const hiPct = (hi / scaleMax) * 100;
-    const markerPct = Math.min(Math.max((dosePerKg / scaleMax) * 100, 1), 99);
-    const markerClass = severity === 'red' ? 'danger' : (severity === 'amber' ? 'warn' : '');
-    rulerHtml = `
-      <div class="ruler-wrap">
-        <div class="ruler-label-row"><span>0</span><span>Recommended range</span><span>${fmt(scaleMax,0)} mg/kg/day</span></div>
-        <div class="ruler">
-          <div class="zone" style="left:${loPct}%;width:${hiPct-loPct}%;"></div>
-          <div class="marker ${markerClass}" style="left:${markerPct}%;"></div>
-        </div>
-        <div class="ruler-ticks"><span>${lo}</span><span>${hi}</span></div>
-        <div class="ruler-caption">${fmt(dosePerKg,1)} mg/kg/day entered</div>
-      </div>`;
-  } else {
-    const fixed = ind.fixedDoseMgKgDay;
-    const scaleMax = Math.max(fixed * 1.35, dosePerKg * 1.1);
-    const targetPct = (fixed / scaleMax) * 100;
-    const markerPct = Math.min(Math.max((dosePerKg / scaleMax) * 100, 1), 99);
-    const markerClass = severity === 'red' ? 'danger' : (severity === 'amber' ? 'warn' : '');
-    rulerHtml = `
-      <div class="ruler-wrap">
-        <div class="ruler-label-row"><span>0</span><span>Fixed CNS protocol dose</span><span>${fmt(scaleMax,0)} mg/kg/day</span></div>
-        <div class="ruler">
-          <div class="target-line" style="left:${targetPct}%;"></div>
-          <div class="marker ${markerClass}" style="left:${markerPct}%;"></div>
-        </div>
-        <div class="ruler-ticks"><span>0</span><span>${fixed}</span></div>
-        <div class="ruler-caption">${fmt(dosePerKg,1)} mg/kg/day entered</div>
-      </div>`;
-  }
-
-  // ---- warnings html ----
-  const warningsHtml = warnings.map(w => `
-    <div class="banner ${w.level}">
-      <span class="icon">!</span>
-      <div><strong>${w.title}</strong>${w.text}</div>
-    </div>
-  `).join('');
-
-  resultsBody.innerHTML = `
-    <div class="result-headline">
-      <div class="result-block">
-        <div class="rlabel">Total daily dose</div>
-        <div class="rvalue">${fmt(totalMgDay)} mg</div>
-        <div class="rsub">${(totalMgDay/1000).toFixed(2)} g/day</div>
-      </div>
-      <div class="result-block">
-        <div class="rlabel">Divided Q12H</div>
-        <div class="rvalue">${fmt(q12hMg)} mg</div>
-        <div class="rsub">per dose, every 12 hrs</div>
-      </div>
-    </div>
-    ${rulerHtml}
-    ${warningsHtml}
-  `;
-
-  // ---- dilution table highlight ----
-  const { index } = getDilution(weight);
-  dilCols.forEach((col, i) => col.classList.toggle('active', i === index));
-}
-
-// init hint text
-indicationHint.textContent = drug.indications[currentIndication].hintText;
-</script>
-
-</body>
-</html>
+  "pip-tazo": {
+    name: "Piperacillin + Tazobactam", form: "Powder", doseBasis: "dose",
+    indications:{
+      standard:{ label:"Standard infection", doseRange:{type:"fixed", value:100}, f            
