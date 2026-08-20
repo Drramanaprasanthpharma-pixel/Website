@@ -836,8 +836,14 @@ function renderPrep(d){
   let html = '';
   if(dil.mode === 'tiered3'){
     html += '<div style="font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:8px;letter-spacing:.03em;">DILUTION VOLUME BY WEIGHT</div>';
-    html += '<table class="dilution-table"><tr><th>&lt;10 kg</th><th>10–20 kg</th><th>&gt;20 kg</th></tr>';
-    html += '<tr><td>' + dil.lt10 + '</td><td>' + dil.t1020 + '</td><td class="hi">' + dil.gt20 + '</td></tr></table>';
+    if(dil.t1020 === dil.gt20){
+      // Source table shows a merged cell across 10–20kg and >20kg for this drug — render it merged, not duplicated.
+      html += '<table class="dilution-table"><tr><th>&lt;10 kg</th><th colspan="2">≥10 kg</th></tr>';
+      html += '<tr><td>' + dil.lt10 + '</td><td class="hi" colspan="2">' + dil.t1020 + '</td></tr></table>';
+    } else {
+      html += '<table class="dilution-table"><tr><th>&lt;10 kg</th><th>10–20 kg</th><th>&gt;20 kg</th></tr>';
+      html += '<tr><td>' + dil.lt10 + '</td><td>' + dil.t1020 + '</td><td class="hi">' + dil.gt20 + '</td></tr></table>';
+    }
   } else if(dil.mode === 'single'){
     html += '<div style="font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:8px;letter-spacing:.03em;">DILUTION VOLUME</div>';
     html += '<div class="dilution-single">' + dil.value + '</div>';
